@@ -40,7 +40,7 @@ public class MissionManager : MonoBehaviour
 
             SceneManager.LoadScene(SceneName.WEBGAME_JOINROOM);
         });
-
+        
         Main.SocketIOManager.Instance.On("WG_NextScene", (string data) =>
         {
             WG_NextSceneData nextSceneData = JsonUtility.FromJson<WG_NextSceneData>(data);

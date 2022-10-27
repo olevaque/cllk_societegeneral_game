@@ -67,6 +67,9 @@ public class WebGameJoinRoom : MonoBehaviour
         });
 
 #if UNITY_EDITOR
+        firstnameIpt.text = "Editor";
+        initialNameIpt.text = "ED";
+
         OnSendMessageReceived("ab704241-eaf6-4857-a815-9d2801e3c48e");
 #endif
     }

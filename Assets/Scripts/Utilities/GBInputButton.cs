@@ -17,7 +17,7 @@ public class GBInputButton : MonoBehaviour
 
         set
         {
-            input.text = value;
+            input.SetTextWithoutNotify(value);
         }
     }
     public string textResult
@@ -33,25 +33,39 @@ public class GBInputButton : MonoBehaviour
     }
 
     [HideInInspector] public UnityEvent onClick;
+    [HideInInspector] public TMP_InputField.OnChangeEvent onValueChanged;
 
     [SerializeField] private Image inputSquareImg, buttonImg;
     [SerializeField] private Button button;
-    [SerializeField] private TextMeshProUGUI resultTxt;
+    [SerializeField] private TextMeshProUGUI placeholderTxt, resultTxt;
     [SerializeField] private TMP_InputField input;
+
+    private bool isCaptain = false;
 
     private void OnEnable()
     {
         button.onClick.AddListener(OnBtnClick);
+        input.onValueChanged.AddListener(OnInputChange);
     }
 
     private void OnDisable()
     {
         button.onClick.RemoveListener(OnBtnClick);
+        input.onValueChanged.AddListener(OnInputChange);
     }
 
     private void Start()
     {
 
+    }
+
+    public void SetCaptainMode(bool isCapt)
+    {
+        placeholderTxt.text = isCapt ? "Enter the code..." : "Wait for the captain to enter the code...";
+        button.gameObject.SetActive(isCapt);
+        input.interactable = isCapt;
+
+        isCaptain = isCapt;
     }
 
     public void SetHasNeutral()
@@ -85,5 +99,13 @@ public class GBInputButton : MonoBehaviour
     private void OnBtnClick()
     {
         onClick?.Invoke();
+    }
+
+    private void OnInputChange(string value)
+    {
+        if (isCaptain)
+        {
+            onValueChanged?.Invoke(value);
+        }
     }
 }

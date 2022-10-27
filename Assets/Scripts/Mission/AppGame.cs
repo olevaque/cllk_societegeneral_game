@@ -29,8 +29,8 @@ public class AppGame : MonoBehaviour
         playVersionA.onClick.AddListener(OnVersionAClick);
         playVersionB.onClick.AddListener(OnVersionBClick);
 
-        Main.TimerManager.OnTimerComplete.AddListener(OnTimerComplete);
-        Main.TimerManager.OnTimerComplete.AddListener(OnTimerUpdate);
+        Main.TimerManager.OnTimerComplete += OnTimerComplete;
+        Main.TimerManager.OnTimerUpdate += OnTimerUpdate;
     }
 
     private void OnDisable()
@@ -43,8 +43,8 @@ public class AppGame : MonoBehaviour
         playVersionA.onClick.RemoveListener(OnVersionAClick);
         playVersionB.onClick.RemoveListener(OnVersionBClick);
 
-        Main.TimerManager.OnTimerComplete.RemoveListener(OnTimerComplete);
-        Main.TimerManager.OnTimerComplete.RemoveListener(OnTimerUpdate);
+        Main.TimerManager.OnTimerComplete -= OnTimerComplete;
+        Main.TimerManager.OnTimerUpdate -= OnTimerUpdate;
     }
 
     private void Start()
@@ -74,7 +74,7 @@ public class AppGame : MonoBehaviour
         gamePnl.SetActive(true);
     }
 
-    private void OnTimerUpdate()
+    private void OnTimerUpdate(int arg1, int arg2, float arg3, string minsecStr)
     {
         throw new NotImplementedException();
     }
@@ -83,6 +83,7 @@ public class AppGame : MonoBehaviour
     {
         throw new NotImplementedException();
     }
+
 
     private void OnProposePassword(string pass)
     {

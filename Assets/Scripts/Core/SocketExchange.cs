@@ -28,6 +28,8 @@ public class WGVC_Data
 [Serializable]
 public class WGCC_Data
 {
+    public string password = string.Empty;
+    public string code = string.Empty;
     public int bngL1C1P1, bngL1C2P1, bngL2C1P1, bngL2C2P1, bngL3C1P1, bngL3C2P1;
     public int bngL1C1P2, bngL1C2P2, bngL2C1P2, bngL2C2P2, bngL3C1P2, bngL3C2P2;
     public int bngL1C1P3, bngL1C2P3, bngL2C1P3, bngL2C2P3, bngL3C1P3, bngL3C2P3;
@@ -61,6 +63,23 @@ public class InfoSessionData
 public class WG_NextSceneData
 {
     public int nextScene;
+}
+
+[Serializable]
+public class WGCC_PasswordData
+{
+    public string password;
+}
+[Serializable]
+public class WGCC_CodeData
+{
+    public string code;
+}
+
+public class CurrentCaptainData
+{
+    public bool youAreCaptain;
+    public Player captain;
 }
 
 [Serializable]

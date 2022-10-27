@@ -10,12 +10,11 @@ using UnityEngine.Events;
 
 public class TimerManager : MonoBehaviour
 {
-    public UnityEvent OnTimerComplete;
-    public UnityEvent<int, int, float> OnTimerUpdate;
+    public event Action OnTimerComplete;
+    public event Action<int, int, float, string> OnTimerUpdate;
 
     private const float TIMER_MAX_SEC = 1800f;
 
-    private bool useSocketTimer = false;
     private bool isTimerStarted = false;
 
     private int minutesRemaining, secondsRemaining, totalSecondsRemaining;
@@ -23,7 +22,7 @@ public class TimerManager : MonoBehaviour
 
     private void Start()
     {
-        Main.SocketIOManager.Instance.On("updateTimerGame", (string data) =>
+        Main.SocketIOManager.Instance.On("UpdateTimerGame", (string data) =>
         {
             TimerData timerData = JsonUtility.FromJson<TimerData>(data);
 
@@ -36,13 +35,13 @@ public class TimerManager : MonoBehaviour
             totalSecondsRemaining = minutesRemaining * 60 + secondsRemaining;
             pctProgress = 1f - totalSecondsRemaining / TIMER_MAX_SEC;
 
-            OnTimerUpdate?.Invoke(minutesRemaining, secondsRemaining, pctProgress);
+            OnTimerUpdate?.Invoke(minutesRemaining, secondsRemaining, pctProgress, minutesStr + ":" + secondsStr);
         });
     }
 
     private void OnDestroy()
     {
-        Main.SocketIOManager.Instance.Off("updateTimer");
+        Main.SocketIOManager.Instance.Off("UpdateTimerGame");
     }
 
     private void Update()
@@ -62,7 +61,10 @@ public class TimerManager : MonoBehaviour
                 secondsRemaining = Mathf.FloorToInt(totalSecondsRemaining % 60);
                 pctProgress = 1f - totalSecondsRemaining / TIMER_MAX_SEC;
 
-                OnTimerUpdate?.Invoke(minutesRemaining, secondsRemaining, pctProgress);
+                string minutesStr = minutesRemaining < 10 ? "0" + minutesRemaining : minutesRemaining.ToString();
+                string secondsStr = secondsRemaining < 10 ? "0" + secondsRemaining : secondsRemaining.ToString();
+
+                OnTimerUpdate?.Invoke(minutesRemaining, secondsRemaining, pctProgress, minutesStr + ":" + secondsRemaining);
             }
         }
     }

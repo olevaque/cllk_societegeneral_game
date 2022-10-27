@@ -73,6 +73,6 @@ public class WebGameReadMission : MissionManager
 
     private void FillVote()
     {
-        validationController.SetTitleProposition("The team propose to start the game.", string.Empty);
+        validationController.SetTitleProposition("<color=#E20031>The team</color> propose to start the game.", string.Empty);
     }
 }

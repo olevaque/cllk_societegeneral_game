@@ -1120,5 +1120,6 @@ MonoBehaviour:
   inputSquareImg: {fileID: 4038103046116234214}
   buttonImg: {fileID: 4038103045034885054}
   button: {fileID: 4038103045034885055}
+  placeholderTxt: {fileID: 4038103046381739483}
   resultTxt: {fileID: 4038103045449606795}
   input: {fileID: 4038103046116234215}
