@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/WebGameCongratulation.unity
     guid: 11fa9aa23563a3045a8ddfff76d046e8
+  - enabled: 1
+    path: Assets/Scenes/WebGameSpectator.unity
+    guid: 0ae691788a978944aa80877c52c71391
   m_configObjects: {}

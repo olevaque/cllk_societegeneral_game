@@ -10,6 +10,9 @@ using System;
 
 public class WebGameChooseCompany : MissionManager
 {
+    [Header("DEBUG")]
+    public bool forceVersionB;
+
     [Header("General")]
     [SerializeField] private CaptainController captainController;
 
@@ -38,6 +41,8 @@ public class WebGameChooseCompany : MissionManager
     protected override void Start()
     {
         base.Start();
+
+        GameVersion.IsVersionA = !forceVersionB;
 
         Main.SocketIOManager.Instance.On("WGCC_ShareVote", (string data) =>
         {

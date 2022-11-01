@@ -6,19 +6,26 @@ using TMPro;
 
 public class WebGameJoinRoom : MonoBehaviour
 {
+    private const string SPECTATOR = "_SP";
+
     private const string CONNECT = "connect";
     private const string DISCONNECT = "disconnect";
+    private const string REQUEST_SESSION_NAME = "requestSessionName";
+    private const string NAME_SESSION = "nameSession";
     private const string JOIN_SESSION = "joinSession";
     private const string INFO_SESSION = "infoSession";
 
     [SerializeField] private Button joinBtn;
     [SerializeField] private TMP_InputField firstnameIpt, initialNameIpt;
-    [SerializeField] private TextMeshProUGUI messageTxt;
+    [SerializeField] private TextMeshProUGUI joinSessionTxt, versionTxt, messageTxt;
 
     private string sessionUUID;
+    private bool isSpectator;
 
     private void Awake()
     {
+        versionTxt.text = Application.version;
+
         messageTxt.text = string.Empty;
         joinBtn.interactable = false;
     }
@@ -38,6 +45,12 @@ public class WebGameJoinRoom : MonoBehaviour
         Main.SocketIOManager.Instance.On(CONNECT, (string data) =>
         {
             joinBtn.interactable = true;
+
+            UuidSessionData uuidSession = new UuidSessionData()
+            {
+                uuid = sessionUUID
+            };
+            Main.SocketIOManager.Instance.Emit(REQUEST_SESSION_NAME, JsonUtility.ToJson(uuidSession), false);
         });
 
         Main.SocketIOManager.Instance.On(INFO_SESSION, (string data) =>
@@ -45,12 +58,25 @@ public class WebGameJoinRoom : MonoBehaviour
             InfoSessionData infoSession = JsonUtility.FromJson<InfoSessionData>(data);
             if (infoSession.status == "OK")
             {
-                SceneManager.LoadScene(infoSession.currentScene);
+                if (isSpectator)
+                {
+                    SceneManager.LoadScene(SceneName.WEBGAME_SPECTATOR);
+                }
+                else
+                {
+                    SceneManager.LoadScene(infoSession.currentScene);
+                }
             }
             else
             {
                 messageTxt.text = infoSession.info;
             }
+        });
+
+        Main.SocketIOManager.Instance.On(NAME_SESSION, (string data) =>
+        {
+            NameSessionData nameSession = JsonUtility.FromJson<NameSessionData>(data);
+            joinSessionTxt.text = "Join the session <color=#E20031>" + nameSession.name + "</color>";
         });
 
         Main.SocketIOManager.Instance.On(DISCONNECT, (string payload) =>
@@ -70,7 +96,7 @@ public class WebGameJoinRoom : MonoBehaviour
         firstnameIpt.text = "Editor";
         initialNameIpt.text = "ED";
 
-        OnSendMessageReceived("ab704241-eaf6-4857-a815-9d2801e3c48e");
+        OnSendMessageReceived("ab704241-eaf6-4857-a815-9d2801e3c48e_SP");
 #endif
     }
 
@@ -81,9 +107,11 @@ public class WebGameJoinRoom : MonoBehaviour
         Main.SocketIOManager.Instance.Off(DISCONNECT);
     }
 
-    public void OnSendMessageReceived(string uuidWithLg)
+    public void OnSendMessageReceived(string uuidWithSP)
     {
-        sessionUUID = uuidWithLg;
+        isSpectator = uuidWithSP.Contains(SPECTATOR);
+
+        sessionUUID = isSpectator ? uuidWithSP.Replace("_SP", "") : sessionUUID;
     }
 
     private void OnJoinClick()

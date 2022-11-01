@@ -8,6 +8,7 @@ public class SceneName
     public const string WEBGAME_VOTECAPTAIN = "WebGameVoteCaptain";
     public const string WEBGAME_CHOOSECOMPANY = "WebGameChooseCompany";
     public const string WEBGAME_CONGRATULATION = "WebGameCongratulation";
+    public const string WEBGAME_SPECTATOR = "WebGameSpectator";
 }
 
 
@@ -48,6 +49,18 @@ public class TimerData
 {
     public int minutes;
     public int seconds;
+}
+
+[Serializable]
+public class UuidSessionData
+{
+    public string uuid;
+}
+
+[Serializable]
+public class NameSessionData
+{
+    public string name;
 }
 
 [Serializable]
