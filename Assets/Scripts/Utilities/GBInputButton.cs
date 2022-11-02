@@ -8,6 +8,19 @@ using System;
 
 public class GBInputButton : MonoBehaviour
 {
+    public bool useResultText = false;
+    public bool interactable
+    {
+        get
+        {
+            return button.interactable;
+        }
+        set
+        {
+            button.interactable = value;
+            input.interactable = value;
+        }
+    }
     public string text
     {
         get
@@ -18,17 +31,6 @@ public class GBInputButton : MonoBehaviour
         set
         {
             input.SetTextWithoutNotify(value);
-        }
-    }
-    public string textResult
-    {
-        get
-        {
-            return resultTxt.text;
-        }
-        set
-        {
-            resultTxt.text = value;
         }
     }
 
@@ -56,7 +58,7 @@ public class GBInputButton : MonoBehaviour
 
     private void Start()
     {
-
+        resultTxt.gameObject.SetActive(useResultText);
     }
 
     public void SetCaptainMode(bool isCapt)
@@ -80,6 +82,7 @@ public class GBInputButton : MonoBehaviour
     {
         inputSquareImg.color = ColorPalette.goodAnswerColor;
         buttonImg.color = ColorPalette.goodAnswerColor;
+        resultTxt.color = ColorPalette.goodAnswerColor;
 
         input.gameObject.SetActive(true);
 
@@ -90,6 +93,7 @@ public class GBInputButton : MonoBehaviour
     {
         inputSquareImg.color = ColorPalette.badAnswerColor;
         buttonImg.color = ColorPalette.badAnswerColor;
+        resultTxt.color = ColorPalette.badAnswerColor;
 
         input.gameObject.SetActive(true);
 
@@ -98,7 +102,10 @@ public class GBInputButton : MonoBehaviour
 
     private void OnBtnClick()
     {
-        onClick?.Invoke();
+        if (text != string.Empty)
+        {
+            onClick?.Invoke();
+        }
     }
 
     private void OnInputChange(string value)

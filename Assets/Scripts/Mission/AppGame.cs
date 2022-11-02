@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class AppGame : MonoBehaviour
 {
@@ -10,13 +11,16 @@ public class AppGame : MonoBehaviour
     [SerializeField] private CaptainController captainController;
 
     [Header("ChooseGameVersion")]
-    [SerializeField] private GameObject chooseVersionPnl, gamePnl, leftPartPnl;
+    [SerializeField] private GameObject chooseVersionPnl;
     [SerializeField] private Button playVersionA, playVersionB;
 
     private void Awake()
     {
+        // Spécifique au jeu solo
+        Main.SocketIOManager.enabled = false;
+        captainController.UsePC_App();
+
         chooseVersionPnl.SetActive(true);
-        gamePnl.SetActive(false);
     }
 
     private void OnEnable()
@@ -30,7 +34,6 @@ public class AppGame : MonoBehaviour
         playVersionB.onClick.AddListener(OnVersionBClick);
 
         Main.TimerManager.OnTimerComplete += OnTimerComplete;
-        Main.TimerManager.OnTimerUpdate += OnTimerUpdate;
     }
 
     private void OnDisable()
@@ -44,7 +47,6 @@ public class AppGame : MonoBehaviour
         playVersionB.onClick.RemoveListener(OnVersionBClick);
 
         Main.TimerManager.OnTimerComplete -= OnTimerComplete;
-        Main.TimerManager.OnTimerUpdate -= OnTimerUpdate;
     }
 
     private void Start()
@@ -68,22 +70,24 @@ public class AppGame : MonoBehaviour
     
     private void StartGame()
     {
+        Main.TimerManager.StartTimer40min();
+
         captainController.Initialise();
 
         chooseVersionPnl.SetActive(false);
-        gamePnl.SetActive(true);
-    }
-
-    private void OnTimerUpdate(int arg1, int arg2, float arg3, string minsecStr)
-    {
-        throw new NotImplementedException();
     }
 
     private void OnTimerComplete()
     {
-        throw new NotImplementedException();
+        if (captainController.CurrentStep == CaptainController.STEP.FINAL_CHOOSE)
+        {
+            SceneManager.LoadScene(SceneName.CONGRATULATION);
+        }
+        else
+        {
+            StartFinalChoose();
+        }
     }
-
 
     private void OnProposePassword(string pass)
     {
@@ -101,7 +105,6 @@ public class AppGame : MonoBehaviour
     {
         if ((GameVersion.IsVersionA && code == "111221") || (!GameVersion.IsVersionA && code == "111221"))
         {
-            leftPartPnl.SetActive(false);
             captainController.GotoStep(CaptainController.STEP.PRINCIPAL_MISSION);
         }
         else
@@ -112,11 +115,25 @@ public class AppGame : MonoBehaviour
 
     private void OnProposeSendReport()
     {
-        captainController.GotoStep(CaptainController.STEP.FINAL_CHOOSE);
+        StartFinalChoose();
     }
 
     private void OnProposeFinalChoose()
     {
-        captainController.GotoStep(CaptainController.STEP.CONGRATULATION);
+        StartCongratulation();
+    }
+
+    private void StartFinalChoose()
+    {
+        Main.TimerManager.StopTimer();
+        Main.TimerManager.StartTimer1m30();
+
+        captainController.GotoStep(CaptainController.STEP.FINAL_CHOOSE);
+    }
+
+    private void StartCongratulation()
+    {
+        Main.TimerManager.StopTimer();
+        SceneManager.LoadScene(SceneName.CONGRATULATION);
     }
 }

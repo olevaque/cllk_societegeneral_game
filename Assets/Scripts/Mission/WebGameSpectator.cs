@@ -12,7 +12,6 @@ public class WebGameSpectator : MonoBehaviour
 
     private void Awake()
     {
-        
     }
 
     private void OnEnable()

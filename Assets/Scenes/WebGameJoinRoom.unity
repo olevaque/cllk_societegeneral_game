@@ -1203,7 +1203,7 @@ GameObject:
   - component: {fileID: 614148024}
   - component: {fileID: 614148025}
   m_Layer: 5
-  m_Name: Panel
+  m_Name: LoginPnl
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1454,6 +1454,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joinBtn: {fileID: 423808803}
+  loginPnl: {fileID: 614148023}
   firstnameIpt: {fileID: 1509276515}
   initialNameIpt: {fileID: 1696948886}
   joinSessionTxt: {fileID: 160031849}

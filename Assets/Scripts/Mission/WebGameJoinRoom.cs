@@ -16,6 +16,7 @@ public class WebGameJoinRoom : MonoBehaviour
     private const string INFO_SESSION = "infoSession";
 
     [SerializeField] private Button joinBtn;
+    [SerializeField] private GameObject loginPnl;
     [SerializeField] private TMP_InputField firstnameIpt, initialNameIpt;
     [SerializeField] private TextMeshProUGUI joinSessionTxt, versionTxt, messageTxt;
 
@@ -44,13 +45,20 @@ public class WebGameJoinRoom : MonoBehaviour
     {
         Main.SocketIOManager.Instance.On(CONNECT, (string data) =>
         {
-            joinBtn.interactable = true;
-
-            UuidSessionData uuidSession = new UuidSessionData()
+            if (isSpectator)
             {
-                uuid = sessionUUID
-            };
-            Main.SocketIOManager.Instance.Emit(REQUEST_SESSION_NAME, JsonUtility.ToJson(uuidSession), false);
+                SceneManager.LoadScene(SceneName.WEBGAME_SPECTATOR);
+            }
+            else
+            {
+                joinBtn.interactable = true;
+
+                UuidSessionData uuidSession = new UuidSessionData()
+                {
+                    uuid = sessionUUID
+                };
+                Main.SocketIOManager.Instance.Emit(REQUEST_SESSION_NAME, JsonUtility.ToJson(uuidSession), false);
+            }
         });
 
         Main.SocketIOManager.Instance.On(INFO_SESSION, (string data) =>
@@ -58,14 +66,7 @@ public class WebGameJoinRoom : MonoBehaviour
             InfoSessionData infoSession = JsonUtility.FromJson<InfoSessionData>(data);
             if (infoSession.status == "OK")
             {
-                if (isSpectator)
-                {
-                    SceneManager.LoadScene(SceneName.WEBGAME_SPECTATOR);
-                }
-                else
-                {
-                    SceneManager.LoadScene(infoSession.currentScene);
-                }
+                SceneManager.LoadScene(infoSession.currentScene);
             }
             else
             {
@@ -111,7 +112,9 @@ public class WebGameJoinRoom : MonoBehaviour
     {
         isSpectator = uuidWithSP.Contains(SPECTATOR);
 
-        sessionUUID = isSpectator ? uuidWithSP.Replace("_SP", "") : sessionUUID;
+        loginPnl.SetActive(!isSpectator);
+
+        sessionUUID = isSpectator ? uuidWithSP.Replace("_SP", "") : uuidWithSP;
     }
 
     private void OnJoinClick()
