@@ -86,6 +86,10 @@ public class CaptainController : MonoBehaviour
 
     private void Awake()
     {
+        transversalBtn.gameObject.SetActive(false);
+        youAreCaptainImg.gameObject.SetActive(false);
+        finalChooseBtn.gameObject.SetActive(false);
+
         panelRct = GetComponent<RectTransform>();
     }
 
@@ -215,9 +219,6 @@ public class CaptainController : MonoBehaviour
 
     private void Start()
     {
-        youAreCaptainImg.gameObject.SetActive(false);
-        finalChooseBtn.gameObject.SetActive(false);
-
         UpdatePanelDisplay();
     }
 
@@ -251,6 +252,12 @@ public class CaptainController : MonoBehaviour
         youAreCaptainImg.gameObject.SetActive(isCaptain);
         passwordGbib.SetCaptainMode(isCaptain);
         codeGbib.SetCaptainMode(isCaptain);
+        sendReportBtn.gameObject.SetActive(isCaptain);
+        finalChooseBtn.gameObject.SetActive(isCaptain);
+
+        company1Btn.interactable = isCaptain;
+        company2Btn.interactable = isCaptain;
+        noCompanyBtn.interactable = isCaptain;
 
         bngL1C1P1Sld.interactable = bngL1C2P1Sld.interactable = bngL2C1P1Sld.interactable = bngL2C2P1Sld.interactable = bngL3C1P1Sld.interactable = bngL3C2P1Sld.interactable =
         bngL1C1P2Sld.interactable = bngL1C2P2Sld.interactable = bngL2C1P2Sld.interactable = bngL2C2P2Sld.interactable = bngL3C1P2Sld.interactable = bngL3C2P2Sld.interactable =
@@ -290,16 +297,33 @@ public class CaptainController : MonoBehaviour
         bngL2C2P4Sld.SetValueWithoutNotify(data.bngL2C2P4);
         bngL3C1P4Sld.SetValueWithoutNotify(data.bngL3C1P4);
         bngL3C2P4Sld.SetValueWithoutNotify(data.bngL3C2P4);
+
+        if (data.company == 0)
+        {
+            DeselectAllCompanyButtons();
+        }
+        else if (data.company == 1)
+        {
+            SelectCompany1();
+        }
+        else if (data.company == 2)
+        {
+            SelectCompany2();
+        }
+        else
+        {
+            SelectNoCompany();
+        }
     }
 
     public void DisplayWrongPassword()
     {
-        passwordGbib.SetHasBad(string.Empty);
+        passwordGbib.SetHasWrong(string.Empty);
     }
 
     public void DisplayWrongCode()
     {
-        codeGbib.SetHasBad(string.Empty);
+        codeGbib.SetHasWrong(string.Empty);
     }
 
     public void UsePC_App()
@@ -340,7 +364,7 @@ public class CaptainController : MonoBehaviour
         }
         else if (currentStep == STEP.FINAL_CHOOSE)
         {
-            timerMessageTxt.text = "Presentation to management imminent :";
+            timerMessageTxt.text = "Presentation to management\nimminent :";
         }
     }
 
@@ -392,12 +416,12 @@ public class CaptainController : MonoBehaviour
     {
         if (!isPanelRetracted)
         {
-            panelRct.DOAnchorPosX(panelRct.sizeDelta.x, RECTRACT_SPEED);
+            panelRct.DOAnchorPosX(924f, RECTRACT_SPEED);
             isPanelRetracted = true;
         }
         else
         {
-            panelRct.DOAnchorPosX(0, RECTRACT_SPEED);
+            panelRct.DOAnchorPosX(0f, RECTRACT_SPEED);
             isPanelRetracted = false;
         }
     }
@@ -440,6 +464,9 @@ public class CaptainController : MonoBehaviour
             brainteaserQuestionTxt.text = "I am 4 times my son's age. In 20 years, I'll be twice his age. How old is my son today ?";
         }
 
+        brainteaserGbib.SetHasNeutral();
+        brainteaserGbib.text = string.Empty;
+        brainteaserGbib.interactable = true;
         continueBtn.gameObject.SetActive(false);
     }
     private void HideBrainteaser()
@@ -450,22 +477,20 @@ public class CaptainController : MonoBehaviour
     {
         continueBtn.gameObject.SetActive(true);
 
-        if (brainteaserIndex == 0 && brainteaserGbib.text == "tuesday")
+        if ((brainteaserIndex == 0 && brainteaserGbib.text == "tuesday") || 
+            (brainteaserIndex == 1 && brainteaserGbib.text == "4") || 
+            (brainteaserIndex == 2 && brainteaserGbib.text == "7") || 
+            (brainteaserIndex == 3 && brainteaserGbib.text == "10"))
         {
-            brainteaserGbib.SetHasGood()
+            brainteaserGbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
+            Main.TimerManager.AddExtraTime(30);
         }
-        else if (brainteaserIndex == 1)
+        else
         {
-            brainteaserQuestionTxt.text = "10 black socks, 8 red socks and 6 white socks are mixed in a drawer. The room is dark. How many socks must be extracted at the MINIMUM in order to be SURE of having two socks of the same color?";
+            brainteaserGbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
+            Main.TimerManager.SubstractExtraTime(30);
         }
-        else if (brainteaserIndex == 2)
-        {
-            brainteaserQuestionTxt.text = "Max and Astrid are siblings. Max says he has as many brothers as sisters. Astrid says she has twice as many brothers as she has sisters. How many siblings are there in total?";
-        }
-        else if (brainteaserIndex == 3)
-        {
-            brainteaserQuestionTxt.text = "I am 4 times my son's age. In 20 years, I'll be twice his age. How old is my son today ?";
-        }
+        brainteaserGbib.interactable = false;
     }
     private void OnBrainteaserContinueClick()
     {
@@ -476,6 +501,30 @@ public class CaptainController : MonoBehaviour
     #region CompanySelection
     private void OnCompany1Click()
     {
+        SelectCompany1();
+
+        wgccData.company = 1;
+        onCaptainInfoChange?.Invoke(wgccData);
+    }
+
+    private void OnCompany2Click()
+    {
+        SelectCompany2();
+
+        wgccData.company = 2;
+        onCaptainInfoChange?.Invoke(wgccData);
+    }
+
+    private void OnNoCompanyClick()
+    {
+        SelectNoCompany();
+
+        wgccData.company = 3;
+        onCaptainInfoChange?.Invoke(wgccData);
+    }
+
+    private void SelectCompany1()
+    {
         finalChooseBtn.gameObject.SetActive(true);
 
         DeselectAllCompanyButtons();
@@ -484,7 +533,7 @@ public class CaptainController : MonoBehaviour
         company1Btn.GetComponent<Image>().color = ColorPalette.badAnswerColor;
     }
 
-    private void OnCompany2Click()
+    private void SelectCompany2()
     {
         finalChooseBtn.gameObject.SetActive(true);
 
@@ -492,9 +541,10 @@ public class CaptainController : MonoBehaviour
 
         company2Btn.GetComponentInChildren<TextMeshProUGUI>().color = ColorPalette.badAnswerColor;
         company2Btn.GetComponent<Image>().color = ColorPalette.badAnswerColor;
+
     }
 
-    private void OnNoCompanyClick()
+    private void SelectNoCompany()
     {
         finalChooseBtn.gameObject.SetActive(true);
 
@@ -532,14 +582,14 @@ public class CaptainController : MonoBehaviour
     }
     private void OnTransversal1Click()
     {
-        if (transversal1Gbib.text.Trim().ToLower() == "yen")
+        if ((transversal1Gbib.text.Trim().ToLower() == "yen" && GameVersion.IsVersionA) || (transversal1Gbib.text.Trim().ToLower() == "dollar" && !GameVersion.IsVersionA))
         {
             transversal1Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
             Main.TimerManager.AddExtraTime(30);
         }
         else
         {
-            transversal1Gbib.SetHasBad("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
+            transversal1Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
             Main.TimerManager.SubstractExtraTime(30);
         }
         transversal1Gbib.interactable = false;
@@ -547,14 +597,14 @@ public class CaptainController : MonoBehaviour
 
     private void OnTransversal2Click()
     {
-        if (transversal2Gbib.text.Trim().ToLower() == "vert")
+        if ((transversal2Gbib.text.Trim().ToLower() == "vert" && GameVersion.IsVersionA) || (transversal2Gbib.text.Trim().ToLower() == "bleu" && !GameVersion.IsVersionA))
         {
             transversal2Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
             Main.TimerManager.AddExtraTime(30);
         }
         else
         {
-            transversal2Gbib.SetHasBad("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
+            transversal2Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
             Main.TimerManager.SubstractExtraTime(30);
         }
         transversal2Gbib.interactable = false;
@@ -562,14 +612,14 @@ public class CaptainController : MonoBehaviour
 
     private void OnTransversal3Click()
     {
-        if (transversal3Gbib.text.Trim().ToLower() == "9")
+        if ((transversal3Gbib.text.Trim().ToLower() == "9" && GameVersion.IsVersionA) || (transversal3Gbib.text.Trim().ToLower() == "8" && !GameVersion.IsVersionA))
         {
             transversal3Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
             Main.TimerManager.AddExtraTime(30);
         }
         else
         {
-            transversal3Gbib.SetHasBad("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
+            transversal3Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
             Main.TimerManager.SubstractExtraTime(30);
         }
         transversal3Gbib.interactable = false;
@@ -577,14 +627,14 @@ public class CaptainController : MonoBehaviour
 
     private void OnTransversal4Click()
     {
-        if (transversal4Gbib.text.Trim().ToLower() == "108")
+        if ((transversal4Gbib.text.Trim().ToLower() == "108" && GameVersion.IsVersionA) || (transversal4Gbib.text.Trim().ToLower() == "76" && !GameVersion.IsVersionA))
         {
             transversal4Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
             Main.TimerManager.AddExtraTime(30);
         }
         else
         {
-            transversal4Gbib.SetHasBad("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
+            transversal4Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
             Main.TimerManager.SubstractExtraTime(30);
         }
         transversal4Gbib.interactable = false;
@@ -592,14 +642,14 @@ public class CaptainController : MonoBehaviour
 
     private void OnTransversal5Click()
     {
-        if (transversal5Gbib.text.Trim().ToLower() == "1527")
+        if ((transversal5Gbib.text.Trim().ToLower() == "1527" && GameVersion.IsVersionA) || (transversal5Gbib.text.Trim().ToLower() == "1517" && !GameVersion.IsVersionA))
         {
             transversal5Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
             Main.TimerManager.AddExtraTime(30);
         }
         else
         {
-            transversal5Gbib.SetHasBad("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
+            transversal5Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
             Main.TimerManager.SubstractExtraTime(30);
         }
         transversal5Gbib.interactable = false;
@@ -629,21 +679,25 @@ public class CaptainController : MonoBehaviour
 
     private void OnExtendRectractP1Click()
     {
+        extendRectractP1Spt.sprite = content1Pnl.activeSelf ? btnExtendSpt : btnRetractSpt;
         content1Pnl.SetActive(!content1Pnl.activeSelf);
     }
 
     private void OnExtendRectractP2Click()
     {
+        extendRectractP2Spt.sprite = content2Pnl.activeSelf ? btnExtendSpt : btnRetractSpt;
         content2Pnl.SetActive(!content2Pnl.activeSelf);
     }
 
     private void OnExtendRectractP3Click()
     {
+        extendRectractP3Spt.sprite = content3Pnl.activeSelf ? btnExtendSpt : btnRetractSpt;
         content3Pnl.SetActive(!content3Pnl.activeSelf);
     }
 
     private void OnExtendRectractP4Click()
     {
+        extendRectractP4Spt.sprite = content4Pnl.activeSelf ? btnExtendSpt : btnRetractSpt;
         content4Pnl.SetActive(!content4Pnl.activeSelf);
     }
     #endregion

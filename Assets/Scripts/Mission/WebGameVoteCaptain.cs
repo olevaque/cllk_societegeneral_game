@@ -91,6 +91,6 @@ public class WebGameVoteCaptain : MissionManager
 
     private void FillVote(WGVC_Data wgvc)
     {
-        validationController.SetTitleProposition("Vote for your captain", wgvc.captain.pseudo);
+        validationController.SetTitleProposition("<color=#E20031>Vote</color> for your captain", wgvc.captain.pseudo);
     }
 }

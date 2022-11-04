@@ -8,9 +8,11 @@ public class SceneName
     public const string WEBGAME_VOTECAPTAIN = "WebGameVoteCaptain";
     public const string WEBGAME_CHOOSECOMPANY = "WebGameChooseCompany";
     public const string WEBGAME_SPECTATOR = "WebGameSpectator";
-    public const string CONGRATULATION = "Congratulation";
-}
+    public const string WEBGAME_CONGRATULATION = "WebGameCongratulation";
 
+    public const string APPGAME = "AppGame";
+    public const string APPGAME_CONGRATULATION = "AppGameCongratulation";
+}
 
 [Serializable]
 public class WGJR_Data
@@ -31,10 +33,13 @@ public class WGCC_Data
 {
     public string password = string.Empty;
     public string code = string.Empty;
+
     public int bngL1C1P1, bngL1C2P1, bngL2C1P1, bngL2C2P1, bngL3C1P1, bngL3C2P1;
     public int bngL1C1P2, bngL1C2P2, bngL2C1P2, bngL2C2P2, bngL3C1P2, bngL3C2P2;
     public int bngL1C1P3, bngL1C2P3, bngL2C1P3, bngL2C2P3, bngL3C1P3, bngL3C2P3;
     public int bngL1C1P4, bngL1C2P4, bngL2C1P4, bngL2C2P4, bngL3C1P4, bngL3C2P4;
+
+    public int company;
 }
 
 [Serializable]
@@ -70,12 +75,18 @@ public class InfoSessionData
     public string info;
     public string pseudo;
     public int currentScene;
+    public bool isVersionA;
 }
 
 [Serializable]
 public class WG_NextSceneData
 {
     public int nextScene;
+}
+[Serializable]
+public class WG_NextStepData
+{
+    public int nextStep;
 }
 
 [Serializable]

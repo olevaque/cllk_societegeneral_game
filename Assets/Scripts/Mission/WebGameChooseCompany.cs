@@ -10,11 +10,10 @@ using System;
 
 public class WebGameChooseCompany : MissionManager
 {
-    [Header("DEBUG")]
-    public bool forceVersionB;
-
     [Header("General")]
     [SerializeField] private CaptainController captainController;
+    [SerializeField] private Sprite sierraBackgroundA, sierraBackgroundB;
+    [SerializeField] private Image sierraBackgroundImg;
 
     protected override void OnEnable()
     {
@@ -41,37 +40,36 @@ public class WebGameChooseCompany : MissionManager
     protected override void Start()
     {
         base.Start();
-
-        GameVersion.IsVersionA = !forceVersionB;
-
-        Main.SocketIOManager.Instance.On("WGCC_ShareVote", (string data) =>
-        {
-            FillVote();
-
-            modalsController.CloseModal();
-            validationController.DisplayVoteInProgressPanel(ValidationController.VOTE_STEP.DO_YOU_AGREE);
-        });
+        
+        captainController.Initialise();
+        sierraBackgroundImg.sprite = GameVersion.IsVersionA ? sierraBackgroundA : sierraBackgroundB;
 
         Main.SocketIOManager.Instance.On("WGCC_CaptainShareInfo", (string data) =>
         {
             WGCC_Data ccData = JsonUtility.FromJson<WGCC_Data>(data);
             captainController.SetInfoFromCaptain(ccData);
         });
-        Main.SocketIOManager.Instance.On("WGCC_CaptainShareGoodPass", (string data) =>
+        Main.SocketIOManager.Instance.On("WG_NextStep", (string data) =>
         {
-            captainController.GotoStep(CaptainController.STEP.CODE);
+            validationController.CloseModal();
+
+            WG_NextStepData nextStepData = JsonUtility.FromJson<WG_NextStepData>(data);
+            captainController.GotoStep((CaptainController.STEP)nextStepData.nextStep);
         });
         Main.SocketIOManager.Instance.On("WGCC_CaptainShareBadPass", (string data) =>
         {
             captainController.DisplayWrongPassword();
         });
-        Main.SocketIOManager.Instance.On("WGCC_CaptainShareGoodCode", (string data) =>
-        {
-            captainController.GotoStep(CaptainController.STEP.PRINCIPAL_MISSION);
-        });
         Main.SocketIOManager.Instance.On("WGCC_CaptainShareBadCode", (string data) =>
         {
             captainController.DisplayWrongCode();
+        });
+        Main.SocketIOManager.Instance.On("WGCC_CaptainShareSendReport", (string data) =>
+        {
+            FillVote();
+
+            modalsController.CloseModal();
+            validationController.DisplayVoteInProgressPanel(ValidationController.VOTE_STEP.DO_YOU_AGREE);
         });
 
         Main.SocketIOManager.Instance.On("currentCaptain", (string data) =>
@@ -81,6 +79,7 @@ public class WebGameChooseCompany : MissionManager
         });
 
         Main.SocketIOManager.Instance.Emit("requestCurrentCaptain");
+        Main.SocketIOManager.Instance.Emit("requestCurrentStep");
     }
 
     protected override void OnDestroy()
@@ -115,12 +114,12 @@ public class WebGameChooseCompany : MissionManager
 
         FillVote();
 
-        Main.SocketIOManager.Instance.Emit("WGCC_Propose");
+        Main.SocketIOManager.Instance.Emit("WGCC_CaptainProposeSendReport");
     }
 
     private void OnProposeFinalChoose()
     {
-        throw new NotImplementedException();
+        Main.SocketIOManager.Instance.Emit("WGCC_CaptainProposeFinalChoose");
     }
 
     private void OnCaptainInfoChange(WGCC_Data captainInfo)

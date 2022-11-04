@@ -75,7 +75,7 @@ public class GBInputButton : MonoBehaviour
         inputSquareImg.color = Color.black;
         buttonImg.color = Color.black;
 
-        input.gameObject.SetActive(false);
+        resultTxt.text = string.Empty;
     }
 
     public void SetHasGood(string info)
@@ -84,18 +84,14 @@ public class GBInputButton : MonoBehaviour
         buttonImg.color = ColorPalette.goodAnswerColor;
         resultTxt.color = ColorPalette.goodAnswerColor;
 
-        input.gameObject.SetActive(true);
-
         resultTxt.text = info;
     }
 
-    public void SetHasBad(string info)
+    public void SetHasWrong(string info)
     {
         inputSquareImg.color = ColorPalette.badAnswerColor;
         buttonImg.color = ColorPalette.badAnswerColor;
         resultTxt.color = ColorPalette.badAnswerColor;
-
-        input.gameObject.SetActive(true);
 
         resultTxt.text = info;
     }

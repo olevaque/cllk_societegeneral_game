@@ -836,8 +836,7 @@ MonoBehaviour:
     tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
     quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
     Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.
-    \n\nEu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-    sunt in culpa qui officia deserunt mollit anim id est laborum."
+    \n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ebed9913e986d547a99cf91e43caac5, type: 2}
   m_sharedMaterial: {fileID: 4451635296494617822, guid: 5ebed9913e986d547a99cf91e43caac5,
@@ -1184,6 +1183,36 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1342322597870822500, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1342322597870822500, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1342322597870822500, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1342322597870822500, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1342322597870822500, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1342322597870822500, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1605605876397428105, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -1857,12 +1886,12 @@ PrefabInstance:
     - target: {fileID: 8311586797814783104, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8311586797814783104, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8311586797814783104, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
         type: 3}
@@ -1882,17 +1911,17 @@ PrefabInstance:
     - target: {fileID: 8311586797814783104, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -27.715
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8528350282498631971, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8528350282498631971, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8528350282498631971, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
         type: 3}
@@ -1912,7 +1941,7 @@ PrefabInstance:
     - target: {fileID: 8528350282498631971, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -27.715
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8528350283371321109, guid: 9467c7c48f6f4c2499c40e7f4a102f51,
         type: 3}
@@ -2470,7 +2499,7 @@ MonoBehaviour:
 
     * Mission 2
 
-    *Mission 3'
+    * Mission 3'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ebed9913e986d547a99cf91e43caac5, type: 2}
   m_sharedMaterial: {fileID: 4451635296494617822, guid: 5ebed9913e986d547a99cf91e43caac5,

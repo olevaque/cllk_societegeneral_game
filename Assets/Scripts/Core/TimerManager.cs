@@ -46,7 +46,7 @@ public class TimerManager : MonoBehaviour
             totalSecondsRemaining = minutesRemaining * 60 + secondsRemaining;
             pctProgress = 1f - totalSecondsRemaining / TIMER_40MIN;
 
-            CheckBrainteaser(pctProgress);
+            //CheckBrainteaser(pctProgress);
 
             OnTimerUpdate?.Invoke(minutesRemaining, secondsRemaining, pctProgress, minutesStr + ":" + secondsStr);
         });
@@ -124,12 +124,12 @@ public class TimerManager : MonoBehaviour
     private void CheckBrainteaser(float pctProgress)
     {
         float[] pctBrainTrigger = new float[NB_BRAINTEASER];
-        pctBrainTrigger[0] = 5 / TIMER_40MIN;
-        pctBrainTrigger[1] = 10 / TIMER_40MIN;
-        pctBrainTrigger[2] = 15 / TIMER_40MIN;
-        pctBrainTrigger[3] = 20 / TIMER_40MIN;
+        pctBrainTrigger[0] = 7 * 60 / TIMER_40MIN;
+        pctBrainTrigger[1] = 14 * 60 / TIMER_40MIN;
+        pctBrainTrigger[2] = 21 * 60 / TIMER_40MIN;
+        pctBrainTrigger[3] = 28 * 60 / TIMER_40MIN;
 
-        float pct30s = 2 / TIMER_40MIN;
+        float pct30s = 90 / TIMER_40MIN;
 
         for (int i=0; i< NB_BRAINTEASER; i++)
         {

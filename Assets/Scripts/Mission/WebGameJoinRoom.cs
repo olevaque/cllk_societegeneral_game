@@ -66,6 +66,7 @@ public class WebGameJoinRoom : MonoBehaviour
             InfoSessionData infoSession = JsonUtility.FromJson<InfoSessionData>(data);
             if (infoSession.status == "OK")
             {
+                GameVersion.IsVersionA = infoSession.isVersionA;
                 SceneManager.LoadScene(infoSession.currentScene);
             }
             else
@@ -97,7 +98,7 @@ public class WebGameJoinRoom : MonoBehaviour
         firstnameIpt.text = "Editor";
         initialNameIpt.text = "ED";
 
-        OnSendMessageReceived("ab704241-eaf6-4857-a815-9d2801e3c48e_SP");
+        OnSendMessageReceived("45cf4c05-43b6-42ad-9db3-a6de9589094c");
 #endif
     }
 

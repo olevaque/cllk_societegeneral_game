@@ -16,10 +16,6 @@ public class AppGame : MonoBehaviour
 
     private void Awake()
     {
-        // Spécifique au jeu solo
-        Main.SocketIOManager.enabled = false;
-        captainController.UsePC_App();
-
         chooseVersionPnl.SetActive(true);
     }
 
@@ -51,6 +47,10 @@ public class AppGame : MonoBehaviour
 
     private void Start()
     {
+        // Spécifique au jeu solo
+        Main.SocketIOManager.enabled = false;
+        captainController.UsePC_App();
+
         captainController.GotoStep(CaptainController.STEP.PASSWORD);
     }
 
@@ -81,7 +81,7 @@ public class AppGame : MonoBehaviour
     {
         if (captainController.CurrentStep == CaptainController.STEP.FINAL_CHOOSE)
         {
-            SceneManager.LoadScene(SceneName.CONGRATULATION);
+            SceneManager.LoadScene(SceneName.APPGAME_CONGRATULATION);
         }
         else
         {
@@ -134,6 +134,6 @@ public class AppGame : MonoBehaviour
     private void StartCongratulation()
     {
         Main.TimerManager.StopTimer();
-        SceneManager.LoadScene(SceneName.CONGRATULATION);
+        SceneManager.LoadScene(SceneName.WEBGAME_CONGRATULATION);
     }
 }
