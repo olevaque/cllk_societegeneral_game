@@ -7,35 +7,39 @@ using TMPro;
 
 public class WebGameSpectator : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI timerTxt;
-    [SerializeField] private Slider partPlaying;
-
-    private void Awake()
-    {
-    }
-
-    private void OnEnable()
-    {
-        Main.TimerManager.OnTimerUpdate += OnTimerUpdate;
-    }
-
-    private void OnDisable()
-    {
-        Main.TimerManager.OnTimerUpdate -= OnTimerUpdate;
-    }
+    [SerializeField] private TextMeshProUGUI gameStatusTxt, timerTxt, sessionDateTxt;
+    [SerializeField] private Slider sliderStep, sliderScene;
 
     private void Start()
     {
-        partPlaying.SetValueWithoutNotify(2);
+        Main.SocketIOManager.Instance.On("spectatorInfo", (string data) =>
+        {
+            SpectatorData specData = JsonUtility.FromJson<SpectatorData>(data);
+            gameStatusTxt.text = "GAME: " + specData.name + " - <color=#E9041E>" + (specData.currentScene < 4 ? "In progress" : "Completed") + "</color> <size=22>- Version" + (specData.isVersionA ? "A" : "B") + "</size>";
+
+            sliderScene.value = specData.currentScene;
+            sliderStep.value = specData.currentStep;
+        });
+
+        sessionDateTxt.text = "Session of " + DateTime.Now.ToString("MM/dd/yyyy");
+
+        StartCoroutine(UpdateSpectator());
     }
 
     private void OnDestroy()
     {
-        
+        Main.SocketIOManager.Instance.Off("spectatorInfo");
     }
 
-    private void OnTimerUpdate(int arg1, int arg2, float arg3, string arg4)
+    private IEnumerator UpdateSpectator()
     {
-        timerTxt.text = arg4;
+        yield return new WaitForSeconds(1f);
+
+        UuidSessionData uuidSession = new UuidSessionData()
+        {
+            uuid = GameVersion.SessionUUID
+        };
+
+        Main.SocketIOManager.Instance.Emit("requestSpectator", JsonUtility.ToJson(uuidSession), false);
     }
 }

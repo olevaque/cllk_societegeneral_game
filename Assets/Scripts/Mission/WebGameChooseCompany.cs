@@ -23,6 +23,7 @@ public class WebGameChooseCompany : MissionManager
         captainController.onProposeCode += OnProposeCode;
         captainController.onProposeSendReport += OnProposeSendReport;
         captainController.onProposeFinalChoose += OnProposeFinalChoose;
+        captainController.onProposeBrainteaser += OnProposeBrainteaser;
         captainController.onCaptainInfoChange += OnCaptainInfoChange;
     }
 
@@ -34,6 +35,7 @@ public class WebGameChooseCompany : MissionManager
         captainController.onProposeCode -= OnProposeCode;
         captainController.onProposeSendReport -= OnProposeSendReport;
         captainController.onProposeFinalChoose -= OnProposeFinalChoose;
+        captainController.onProposeBrainteaser -= OnProposeBrainteaser;
         captainController.onCaptainInfoChange -= OnCaptainInfoChange;
     }
 
@@ -71,7 +73,14 @@ public class WebGameChooseCompany : MissionManager
             modalsController.CloseModal();
             validationController.DisplayVoteInProgressPanel(ValidationController.VOTE_STEP.DO_YOU_AGREE);
         });
-
+        Main.SocketIOManager.Instance.On("WGCC_CaptainShareGoodBrainteaser", (string data) =>
+        {
+            captainController.DisplayGoodBrainteaser();
+        }); 
+        Main.SocketIOManager.Instance.On("WGCC_CaptainShareBadBrainteaser", (string data) =>
+        {
+            captainController.DisplayWrongBrainteaser();
+        });
         Main.SocketIOManager.Instance.On("currentCaptain", (string data) =>
         {
             CurrentCaptainData ccData = JsonUtility.FromJson<CurrentCaptainData>(data);
@@ -86,6 +95,13 @@ public class WebGameChooseCompany : MissionManager
     {
         base.OnDestroy();
         
+        Main.SocketIOManager.Instance.Off("WGCC_CaptainShareInfo");
+        Main.SocketIOManager.Instance.Off("WG_NextStep");
+        Main.SocketIOManager.Instance.Off("WGCC_CaptainShareBadPass");
+        Main.SocketIOManager.Instance.Off("WGCC_CaptainShareBadCode");
+        Main.SocketIOManager.Instance.Off("WGCC_CaptainShareSendReport");
+        Main.SocketIOManager.Instance.Off("WGCC_CaptainShareGoodBrainteaser");
+        Main.SocketIOManager.Instance.Off("WGCC_CaptainShareBadBrainteaser");
         Main.SocketIOManager.Instance.Off("currentCaptain");
     }
 
@@ -120,6 +136,16 @@ public class WebGameChooseCompany : MissionManager
     private void OnProposeFinalChoose()
     {
         Main.SocketIOManager.Instance.Emit("WGCC_CaptainProposeFinalChoose");
+    }
+
+    private void OnProposeBrainteaser(int question, string bAnswer)
+    {
+        WGCC_BrainteaserData ccData = new WGCC_BrainteaserData()
+        {
+            questionId = question,
+            answer = bAnswer
+        };
+        Main.SocketIOManager.Instance.Emit("WGCC_CaptainProposeBrainteaser", JsonUtility.ToJson(ccData), false);
     }
 
     private void OnCaptainInfoChange(WGCC_Data captainInfo)

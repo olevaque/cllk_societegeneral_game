@@ -16,16 +16,23 @@ public class DocumentsController : MonoBehaviour
     [SerializeField] private GameObject[] thumbnailsVersionA, thumbnailsVersionB;
     [SerializeField] private Unlocker[] unlockerVersionA, unlockerVersionB;
     [SerializeField] private Image[] lockerImgs;
-    [SerializeField] private GameObject docZoomed;
-    [SerializeField] private Transform docZoomedCnt;
-    [SerializeField] private Button closeZoomBtn, backBtn;
+    [SerializeField] private GameObject soundDocPnl, paperDocPnl, docZoomedPnl, docZoomedImg;
+    [SerializeField] private Button closeZoomBtn, prevBtn, nextBtn, backBtn;
 
     private bool[] unlockedFolders = new bool[NB_FOLDER];
+
+    private PaperDocument[] docThumbnails;
+
+    private Transform thumbParent;
+    private int thumbSelected;
+
+    private Document currentDocOpen;
 
     private CanvasGroup docsCg;
 
     private void Awake()
     {
+        docThumbnails = GetComponentsInChildren<PaperDocument>(true);
         docsCg = GetComponent<CanvasGroup>();
     }
 
@@ -36,13 +43,22 @@ public class DocumentsController : MonoBehaviour
             int closureIndex = i;
             folderBtns[i].onClick.AddListener(() => OnFolderClick(closureIndex));
         }
+        for (int i=0; i< docThumbnails.Length; i++)
+        {
+            int closureIndex = i;
+            docThumbnails[closureIndex].GetComponent<Button>().onClick.AddListener(() => ShowDocument(docThumbnails[closureIndex].transform));
+        }
 
+        prevBtn.onClick.AddListener(onPrevClick);
+        nextBtn.onClick.AddListener(onNextClick);
         backBtn.onClick.AddListener(OnBackClick);
         closeZoomBtn.onClick.AddListener(OnCloseZoomClick);
     }
 
     private void OnDisable()
     {
+        prevBtn.onClick.RemoveListener(onPrevClick);
+        nextBtn.onClick.RemoveListener(onNextClick);
         backBtn.onClick.RemoveListener(OnBackClick);
         closeZoomBtn.onClick.RemoveListener(OnCloseZoomClick);
     }
@@ -134,22 +150,40 @@ public class DocumentsController : MonoBehaviour
         }
     }
 
-    public void ShowZoomedDoc(GameObject docTarget)
+    private void ShowDocument(Transform thumbnailRequest)
     {
-        docZoomed.SetActive(true);
-        docTarget.SetActive(true);
+        UpdateArrows(thumbnailRequest.parent, thumbnailRequest.GetSiblingIndex());
+
+        docZoomedPnl.SetActive(true);
+
+        currentDocOpen = thumbnailRequest.GetComponent<Document>();
+        if (currentDocOpen is SoundDocument)
+        {
+            soundDocPnl.SetActive(true);
+            paperDocPnl.SetActive(false);
+        }
+        else if (currentDocOpen is PaperDocument)
+        {
+            soundDocPnl.SetActive(false);
+            paperDocPnl.SetActive(true);
+
+            var imgTarget = thumbnailRequest.GetComponentsInChildren<Image>()[1];
+            docZoomedImg.GetComponent<Image>().sprite = imgTarget.sprite;
+            docZoomedImg.GetComponent<LayoutElement>().preferredHeight = imgTarget.sprite.rect.height > imgTarget.sprite.rect.width ? 1280f : 926f;
+        }
+        currentDocOpen.Open(currentDocOpen.name);
     }
+
     private void HideZoomedDoc()
     {
-        foreach(Transform child in docZoomedCnt)
-        {
-            child.gameObject.SetActive(false);
-        }
-        docZoomed.SetActive(false);
+        if (currentDocOpen) currentDocOpen.Close(currentDocOpen.name);
+
+        docZoomedPnl.SetActive(false);
     }
 
     private void OnBackClick()
     {
+        HideZoomedDoc();
         HideDocs();
     }
     private void OnCloseZoomClick()
@@ -167,5 +201,30 @@ public class DocumentsController : MonoBehaviour
         {
             thumb.SetActive(false);
         }
+    }
+
+    private void onNextClick()
+    {
+        thumbSelected++;
+
+        Transform nextElem = thumbParent.GetChild(thumbSelected);
+        ShowDocument(nextElem);
+    }
+
+    private void onPrevClick()
+    {
+        thumbSelected--;
+
+        Transform nextElem = thumbParent.GetChild(thumbSelected);
+        ShowDocument(nextElem);
+    }
+
+    private void UpdateArrows(Transform thumbnailParent, int sibling)
+    {
+        thumbParent = thumbnailParent;
+        thumbSelected = sibling;
+
+        prevBtn.interactable = thumbSelected > 0;
+        nextBtn.interactable = thumbSelected < thumbParent.childCount - 1;
     }
 }

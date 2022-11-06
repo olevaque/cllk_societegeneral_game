@@ -7,4 +7,8 @@ using System;
 
 public class Congratulation : MonoBehaviour
 {
+    public void Quit()
+    {
+        Application.Quit();
+    }
 }

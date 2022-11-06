@@ -55,7 +55,7 @@ public class WebGameJoinRoom : MonoBehaviour
 
                 UuidSessionData uuidSession = new UuidSessionData()
                 {
-                    uuid = sessionUUID
+                    uuid = GameVersion.SessionUUID
                 };
                 Main.SocketIOManager.Instance.Emit(REQUEST_SESSION_NAME, JsonUtility.ToJson(uuidSession), false);
             }
@@ -98,7 +98,7 @@ public class WebGameJoinRoom : MonoBehaviour
         firstnameIpt.text = "Editor";
         initialNameIpt.text = "ED";
 
-        OnSendMessageReceived("45cf4c05-43b6-42ad-9db3-a6de9589094c");
+        OnSendMessageReceived("c1169d70-8c7d-4fcf-89c5-1ee80c625294_SP");
 #endif
     }
 
@@ -106,6 +106,7 @@ public class WebGameJoinRoom : MonoBehaviour
     {
         Main.SocketIOManager.Instance.Off(CONNECT);
         Main.SocketIOManager.Instance.Off(INFO_SESSION);
+        Main.SocketIOManager.Instance.Off(NAME_SESSION);
         Main.SocketIOManager.Instance.Off(DISCONNECT);
     }
 
@@ -115,7 +116,7 @@ public class WebGameJoinRoom : MonoBehaviour
 
         loginPnl.SetActive(!isSpectator);
 
-        sessionUUID = isSpectator ? uuidWithSP.Replace("_SP", "") : uuidWithSP;
+        GameVersion.SessionUUID = isSpectator ? uuidWithSP.Replace("_SP", "") : uuidWithSP;
     }
 
     private void OnJoinClick()
@@ -124,7 +125,7 @@ public class WebGameJoinRoom : MonoBehaviour
         {
             WGJR_Data wgjrData = new WGJR_Data()
             {
-                uuid = sessionUUID,
+                uuid = GameVersion.SessionUUID,
                 firstname = firstnameIpt.text,
                 initialName = initialNameIpt.text
             };

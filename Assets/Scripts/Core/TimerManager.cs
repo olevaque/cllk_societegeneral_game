@@ -46,7 +46,7 @@ public class TimerManager : MonoBehaviour
             totalSecondsRemaining = minutesRemaining * 60 + secondsRemaining;
             pctProgress = 1f - totalSecondsRemaining / TIMER_40MIN;
 
-            //CheckBrainteaser(pctProgress);
+            CheckBrainteaser(pctProgress);
 
             OnTimerUpdate?.Invoke(minutesRemaining, secondsRemaining, pctProgress, minutesStr + ":" + secondsStr);
         });

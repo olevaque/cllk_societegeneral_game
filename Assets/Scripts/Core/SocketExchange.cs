@@ -33,6 +33,7 @@ public class WGCC_Data
 {
     public string password = string.Empty;
     public string code = string.Empty;
+    public string brainteaser = string.Empty;
 
     public int bngL1C1P1, bngL1C2P1, bngL2C1P1, bngL2C2P1, bngL3C1P1, bngL3C2P1;
     public int bngL1C1P2, bngL1C2P2, bngL2C1P2, bngL2C2P2, bngL3C1P2, bngL3C2P2;
@@ -77,6 +78,14 @@ public class InfoSessionData
     public int currentScene;
     public bool isVersionA;
 }
+[Serializable]
+public class SpectatorData
+{
+    public bool isVersionA;
+    public string name;
+    public int currentScene;
+    public int currentStep;
+}
 
 [Serializable]
 public class WG_NextSceneData
@@ -98,6 +107,12 @@ public class WGCC_PasswordData
 public class WGCC_CodeData
 {
     public string code;
+}
+[Serializable]
+public class WGCC_BrainteaserData
+{
+    public int questionId;
+    public string answer;
 }
 
 public class CurrentCaptainData

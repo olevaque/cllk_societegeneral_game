@@ -4,6 +4,7 @@ using UnityEngine;
 
 public static class GameVersion
 {
+    public static string SessionUUID = string.Empty;
     public static bool IsVersionA = true;
 
     public static Sprite GetCompany1Icon()

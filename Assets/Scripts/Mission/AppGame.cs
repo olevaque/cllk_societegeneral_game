@@ -25,6 +25,7 @@ public class AppGame : MonoBehaviour
         captainController.onProposeCode += OnProposeCode;
         captainController.onProposeSendReport += OnProposeSendReport;
         captainController.onProposeFinalChoose += OnProposeFinalChoose;
+        captainController.onProposeBrainteaser += OnProposeBrainTeaser;
 
         playVersionA.onClick.AddListener(OnVersionAClick);
         playVersionB.onClick.AddListener(OnVersionBClick);
@@ -38,6 +39,7 @@ public class AppGame : MonoBehaviour
         captainController.onProposeCode -= OnProposeCode;
         captainController.onProposeSendReport -= OnProposeSendReport;
         captainController.onProposeFinalChoose -= OnProposeFinalChoose;
+        captainController.onProposeBrainteaser -= OnProposeBrainTeaser;
 
         playVersionA.onClick.RemoveListener(OnVersionAClick);
         playVersionB.onClick.RemoveListener(OnVersionBClick);
@@ -49,7 +51,7 @@ public class AppGame : MonoBehaviour
     {
         // Spécifique au jeu solo
         Main.SocketIOManager.enabled = false;
-        captainController.UsePC_App();
+        captainController.IsAppPC = true;
 
         captainController.GotoStep(CaptainController.STEP.PASSWORD);
     }
@@ -113,6 +115,23 @@ public class AppGame : MonoBehaviour
         }
     }
 
+    private void OnProposeBrainTeaser(int brainteaserIndex, string answer)
+    {
+        if (    (brainteaserIndex == 0 && answer == "tuesday") ||
+                (brainteaserIndex == 1 && answer == "4") ||
+                (brainteaserIndex == 2 && answer == "7") ||
+                (brainteaserIndex == 3 && answer == "10"))
+        {
+            captainController.DisplayGoodBrainteaser();
+            Main.TimerManager.AddExtraTime(30);
+        }
+        else
+        {
+            captainController.DisplayWrongBrainteaser();
+            Main.TimerManager.SubstractExtraTime(30);
+        }
+    }
+
     private void OnProposeSendReport()
     {
         StartFinalChoose();
@@ -134,6 +153,6 @@ public class AppGame : MonoBehaviour
     private void StartCongratulation()
     {
         Main.TimerManager.StopTimer();
-        SceneManager.LoadScene(SceneName.WEBGAME_CONGRATULATION);
+        SceneManager.LoadScene(SceneName.APPGAME_CONGRATULATION);
     }
 }

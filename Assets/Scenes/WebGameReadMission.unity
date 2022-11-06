@@ -574,7 +574,7 @@ MonoBehaviour:
     m_Top: 48
     m_Bottom: 48
   m_ChildAlignment: 4
-  m_Spacing: 48
+  m_Spacing: 64
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -832,11 +832,13 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.
-    \n"
+  m_text: "The Soci\xE9t\xE9 G\xE9n\xE9rale just announced its plan to create a new
+    joint venture with a bank from Malanam, specialized in mobile payment.\r\nYou
+    are in charge of evaluating the risks of this collaboration and make recommendations
+    to choose the best solution between \n2 preselected banks.\r\n\nFor security
+    reasons, some of the files are sealed, the bailiff in charge of opening has been
+    delayed.\r\nUnfortunately, we do not have time to wait for him as you need to
+    present your report in front of the Executive Committee in 40 minutes."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ebed9913e986d547a99cf91e43caac5, type: 2}
   m_sharedMaterial: {fileID: 4451635296494617822, guid: 5ebed9913e986d547a99cf91e43caac5,
@@ -2495,11 +2497,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '* Mission 1
+  m_text: '1. Unlock the different files to access all the information you need
 
-    * Mission 2
-
-    * Mission 3'
+    2.
+    Communicate with your team so the captain can send the report in time'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ebed9913e986d547a99cf91e43caac5, type: 2}
   m_sharedMaterial: {fileID: 4451635296494617822, guid: 5ebed9913e986d547a99cf91e43caac5,

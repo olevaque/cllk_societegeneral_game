@@ -9,6 +9,8 @@ using DG.Tweening;
 
 public class CaptainController : MonoBehaviour
 {
+    public bool IsAppPC { get; set; } = false;
+
     public STEP CurrentStep
     {
         get
@@ -21,6 +23,7 @@ public class CaptainController : MonoBehaviour
 
     public event Action<string> onProposePassword;
     public event Action<string> onProposeCode;
+    public event Action<int, string> onProposeBrainteaser;
     public event Action onProposeSendReport;
     public event Action onProposeFinalChoose;
     public event Action<WGCC_Data> onCaptainInfoChange;
@@ -31,10 +34,11 @@ public class CaptainController : MonoBehaviour
 
     [Header("General")]
     [SerializeField] private Image youAreCaptainImg;
-    [SerializeField] private TextMeshProUGUI headerTimerTxt, leftTimerTxt;
+    [SerializeField] private TextMeshProUGUI headerTimerTxt, alternativeTimerBTTxt, leftTimerTxt;
     [SerializeField] private Sprite btnExtendSpt, btnRetractSpt;
     [SerializeField] private Button sendReportBtn, retractBtn;
-    [SerializeField] private GameObject leftPart, headerPnl;
+    [SerializeField] private RectTransform carretRetractRct;
+    [SerializeField] private GameObject leftPart, headerPnl, alternativeBTPnl;
 
     [Header("Timer")]
     [SerializeField] private GameObject timerPnl;
@@ -82,14 +86,12 @@ public class CaptainController : MonoBehaviour
     private bool isPanelRetracted = false;
     private int brainteaserIndex = 0;
 
+    private bool isCaptain = false;
+
     WGCC_Data wgccData = new WGCC_Data();
 
     private void Awake()
     {
-        transversalBtn.gameObject.SetActive(false);
-        youAreCaptainImg.gameObject.SetActive(false);
-        finalChooseBtn.gameObject.SetActive(false);
-
         panelRct = GetComponent<RectTransform>();
     }
 
@@ -112,6 +114,7 @@ public class CaptainController : MonoBehaviour
 
         passwordGbib.onValueChanged.AddListener(OnPasswordChange);
         codeGbib.onValueChanged.AddListener(OnCodeChange);
+        brainteaserGbib.onValueChanged.AddListener(OnBrainteaserChange);
 
         extendRectractP1Btn.onClick.AddListener(OnExtendRectractP1Click);
         extendRectractP2Btn.onClick.AddListener(OnExtendRectractP2Click);
@@ -219,11 +222,19 @@ public class CaptainController : MonoBehaviour
 
     private void Start()
     {
-        UpdatePanelDisplay();
     }
 
     public void Initialise()
     {
+        youAreCaptainImg.gameObject.SetActive(false);
+        finalChooseBtn.gameObject.SetActive(false);
+
+        alternativeBTPnl.SetActive(!IsAppPC);
+        retractBtn.gameObject.SetActive(!IsAppPC);
+        transversalBtn.gameObject.SetActive(IsAppPC);
+
+        UpdatePanelDisplay();
+
         Sprite company1 = GameVersion.GetCompany1Icon();
         Sprite company2 = GameVersion.GetCompany2Icon();
         iconC1P1Img.sprite = company1;
@@ -247,28 +258,33 @@ public class CaptainController : MonoBehaviour
         UpdatePanelDisplay();
     }
     
-    public void SetCaptainMode(bool isCaptain)
+    public void SetCaptainMode(bool isCapt)
     {
-        youAreCaptainImg.gameObject.SetActive(isCaptain);
-        passwordGbib.SetCaptainMode(isCaptain);
-        codeGbib.SetCaptainMode(isCaptain);
-        sendReportBtn.gameObject.SetActive(isCaptain);
-        finalChooseBtn.gameObject.SetActive(isCaptain);
+        youAreCaptainImg.gameObject.SetActive(isCapt);
+        passwordGbib.SetCaptainMode(isCapt);
+        codeGbib.SetCaptainMode(isCapt);
+        brainteaserGbib.SetCaptainMode(isCapt);
 
-        company1Btn.interactable = isCaptain;
-        company2Btn.interactable = isCaptain;
-        noCompanyBtn.interactable = isCaptain;
+        sendReportBtn.gameObject.SetActive(isCapt);
+        finalChooseBtn.gameObject.SetActive(isCapt);
+
+        company1Btn.interactable = isCapt;
+        company2Btn.interactable = isCapt;
+        noCompanyBtn.interactable = isCapt;
 
         bngL1C1P1Sld.interactable = bngL1C2P1Sld.interactable = bngL2C1P1Sld.interactable = bngL2C2P1Sld.interactable = bngL3C1P1Sld.interactable = bngL3C2P1Sld.interactable =
         bngL1C1P2Sld.interactable = bngL1C2P2Sld.interactable = bngL2C1P2Sld.interactable = bngL2C2P2Sld.interactable = bngL3C1P2Sld.interactable = bngL3C2P2Sld.interactable =
         bngL1C1P3Sld.interactable = bngL1C2P3Sld.interactable = bngL2C1P3Sld.interactable = bngL2C2P3Sld.interactable = bngL3C1P3Sld.interactable = bngL3C2P3Sld.interactable =
-        bngL1C1P4Sld.interactable = bngL1C2P4Sld.interactable = bngL2C1P4Sld.interactable = bngL2C2P4Sld.interactable = bngL3C1P4Sld.interactable = bngL3C2P4Sld.interactable = isCaptain;
+        bngL1C1P4Sld.interactable = bngL1C2P4Sld.interactable = bngL2C1P4Sld.interactable = bngL2C2P4Sld.interactable = bngL3C1P4Sld.interactable = bngL3C2P4Sld.interactable = isCapt;
+
+        isCaptain = isCapt;
     }
 
     public void SetInfoFromCaptain(WGCC_Data data)
     {
         passwordGbib.text = data.password;
         codeGbib.text = data.code;
+        brainteaserGbib.text = data.brainteaser;
 
         bngL1C1P1Sld.SetValueWithoutNotify(data.bngL1C1P1);
         bngL1C2P1Sld.SetValueWithoutNotify(data.bngL1C2P1);
@@ -326,10 +342,16 @@ public class CaptainController : MonoBehaviour
         codeGbib.SetHasWrong(string.Empty);
     }
 
-    public void UsePC_App()
+    public void DisplayGoodBrainteaser()
     {
-        retractBtn.gameObject.SetActive(false);
-        transversalBtn.gameObject.SetActive(true);
+        brainteaserGbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
+        continueBtn.gameObject.SetActive(true);
+    }
+
+    public void DisplayWrongBrainteaser()
+    {
+        brainteaserGbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
+        continueBtn.gameObject.SetActive(true);
     }
 
     private void OnTimerUpdate(int minutes, int seconds, float pct, string minsecStr)
@@ -345,7 +367,10 @@ public class CaptainController : MonoBehaviour
         headerPnl.SetActive(currentStep == STEP.CODE || currentStep == STEP.PRINCIPAL_MISSION || currentStep == STEP.TRANSVERSAL);
 
         // Left part
-        leftPart.SetActive(currentStep == STEP.PASSWORD || currentStep == STEP.CODE || currentStep == STEP.BRAINTEASER || currentStep == STEP.FINAL_CHOOSE);
+        if (IsAppPC)
+        {
+            leftPart.SetActive(currentStep == STEP.PASSWORD || currentStep == STEP.CODE || currentStep == STEP.BRAINTEASER || currentStep == STEP.FINAL_CHOOSE);
+        }
         timerPnl.SetActive(currentStep == STEP.PASSWORD || currentStep == STEP.CODE || currentStep == STEP.FINAL_CHOOSE);
         brainTeaserLeftPnl.SetActive(currentStep == STEP.BRAINTEASER);
 
@@ -377,6 +402,12 @@ public class CaptainController : MonoBehaviour
     private void OnCodeChange(string code)
     {
         wgccData.code = code;
+        onCaptainInfoChange?.Invoke(wgccData);
+    }
+
+    private void OnBrainteaserChange(string bt)
+    {
+        wgccData.brainteaser = bt;
         onCaptainInfoChange?.Invoke(wgccData);
     }
 
@@ -416,11 +447,13 @@ public class CaptainController : MonoBehaviour
     {
         if (!isPanelRetracted)
         {
+            carretRetractRct.DORotate(new Vector3(0, 0, 180), RECTRACT_SPEED);
             panelRct.DOAnchorPosX(924f, RECTRACT_SPEED);
             isPanelRetracted = true;
         }
         else
         {
+            carretRetractRct.DORotate(new Vector3(0, 0, 0), RECTRACT_SPEED);
             panelRct.DOAnchorPosX(0f, RECTRACT_SPEED);
             isPanelRetracted = false;
         }
@@ -435,12 +468,14 @@ public class CaptainController : MonoBehaviour
     private void OnBrainTeaserUpdate(string timer)
     {
         brainteaserTimerTxt.text = "<b>You have " + timer + " seconds</b> to answer this question.";
+        alternativeTimerBTTxt.text = "<b>You have " + timer + " seconds</b> to answer this question.";
     }
 
     private void OnBrainTeaserEnd()
     {
         HideBrainteaser();
     }
+
     private void DisplayBrainteaser(int idBrainTeaser)
     {
         GotoStep(STEP.BRAINTEASER);
@@ -464,33 +499,24 @@ public class CaptainController : MonoBehaviour
             brainteaserQuestionTxt.text = "I am 4 times my son's age. In 20 years, I'll be twice his age. How old is my son today ?";
         }
 
+        if (isPanelRetracted)
+        {
+            OnRetractClick();
+        }
+
         brainteaserGbib.SetHasNeutral();
         brainteaserGbib.text = string.Empty;
-        brainteaserGbib.interactable = true;
+        brainteaserGbib.interactable = IsAppPC || isCaptain;
         continueBtn.gameObject.SetActive(false);
     }
     private void HideBrainteaser()
     {
-        GotoStep(previousStep);
+        if (currentStep == STEP.BRAINTEASER) GotoStep(previousStep);
     }
     private void OnBrainteaserGbibValidate()
     {
-        continueBtn.gameObject.SetActive(true);
-
-        if ((brainteaserIndex == 0 && brainteaserGbib.text == "tuesday") || 
-            (brainteaserIndex == 1 && brainteaserGbib.text == "4") || 
-            (brainteaserIndex == 2 && brainteaserGbib.text == "7") || 
-            (brainteaserIndex == 3 && brainteaserGbib.text == "10"))
-        {
-            brainteaserGbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
-            Main.TimerManager.AddExtraTime(30);
-        }
-        else
-        {
-            brainteaserGbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
-            Main.TimerManager.SubstractExtraTime(30);
-        }
         brainteaserGbib.interactable = false;
+        onProposeBrainteaser?.Invoke(brainteaserIndex, brainteaserGbib.text);
     }
     private void OnBrainteaserContinueClick()
     {
@@ -584,43 +610,43 @@ public class CaptainController : MonoBehaviour
     {
         if ((transversal1Gbib.text.Trim().ToLower() == "yen" && GameVersion.IsVersionA) || (transversal1Gbib.text.Trim().ToLower() == "dollar" && !GameVersion.IsVersionA))
         {
-            transversal1Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
-            Main.TimerManager.AddExtraTime(30);
+            transversal1Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>40s</b>.");
+            Main.TimerManager.AddExtraTime(40);
         }
         else
         {
-            transversal1Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
-            Main.TimerManager.SubstractExtraTime(30);
+            transversal1Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>20s</b>.");
+            Main.TimerManager.SubstractExtraTime(20);
         }
         transversal1Gbib.interactable = false;
     }
 
     private void OnTransversal2Click()
     {
-        if ((transversal2Gbib.text.Trim().ToLower() == "vert" && GameVersion.IsVersionA) || (transversal2Gbib.text.Trim().ToLower() == "bleu" && !GameVersion.IsVersionA))
+        if ((transversal2Gbib.text.Trim().ToLower() == "green" && GameVersion.IsVersionA) || (transversal2Gbib.text.Trim().ToLower() == "blue" && !GameVersion.IsVersionA))
         {
-            transversal2Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
-            Main.TimerManager.AddExtraTime(30);
+            transversal2Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>20s</b>.");
+            Main.TimerManager.AddExtraTime(20);
         }
         else
         {
-            transversal2Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
-            Main.TimerManager.SubstractExtraTime(30);
+            transversal2Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>10s</b>.");
+            Main.TimerManager.SubstractExtraTime(10);
         }
         transversal2Gbib.interactable = false;
     }
 
     private void OnTransversal3Click()
     {
-        if ((transversal3Gbib.text.Trim().ToLower() == "9" && GameVersion.IsVersionA) || (transversal3Gbib.text.Trim().ToLower() == "8" && !GameVersion.IsVersionA))
+        if ((transversal3Gbib.text.Trim().ToLower() == "9" && GameVersion.IsVersionA) || (transversal3Gbib.text.Trim().ToLower() == "6" && !GameVersion.IsVersionA))
         {
-            transversal3Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
-            Main.TimerManager.AddExtraTime(30);
+            transversal3Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>45s</b>.");
+            Main.TimerManager.AddExtraTime(45);
         }
         else
         {
-            transversal3Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
-            Main.TimerManager.SubstractExtraTime(30);
+            transversal3Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>22s</b>.");
+            Main.TimerManager.SubstractExtraTime(22);
         }
         transversal3Gbib.interactable = false;
     }
@@ -629,13 +655,13 @@ public class CaptainController : MonoBehaviour
     {
         if ((transversal4Gbib.text.Trim().ToLower() == "108" && GameVersion.IsVersionA) || (transversal4Gbib.text.Trim().ToLower() == "76" && !GameVersion.IsVersionA))
         {
-            transversal4Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
-            Main.TimerManager.AddExtraTime(30);
+            transversal4Gbib.SetHasGood("<b>Good answer</b>\nYou have won <b>15s</b>.");
+            Main.TimerManager.AddExtraTime(15);
         }
         else
         {
-            transversal4Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
-            Main.TimerManager.SubstractExtraTime(30);
+            transversal4Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>7s</b>.");
+            Main.TimerManager.SubstractExtraTime(7);
         }
         transversal4Gbib.interactable = false;
     }
@@ -649,8 +675,8 @@ public class CaptainController : MonoBehaviour
         }
         else
         {
-            transversal5Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
-            Main.TimerManager.SubstractExtraTime(30);
+            transversal5Gbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>15s</b>.");
+            Main.TimerManager.SubstractExtraTime(15);
         }
         transversal5Gbib.interactable = false;
     }
