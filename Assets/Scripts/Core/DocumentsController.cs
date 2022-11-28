@@ -21,7 +21,7 @@ public class DocumentsController : MonoBehaviour
 
     private bool[] unlockedFolders = new bool[NB_FOLDER];
 
-    private PaperDocument[] docThumbnails;
+    private Document[] docThumbnails;
 
     private Transform thumbParent;
     private int thumbSelected;
@@ -32,7 +32,7 @@ public class DocumentsController : MonoBehaviour
 
     private void Awake()
     {
-        docThumbnails = GetComponentsInChildren<PaperDocument>(true);
+        docThumbnails = GetComponentsInChildren<Document>(true);
         docsCg = GetComponent<CanvasGroup>();
     }
 

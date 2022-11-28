@@ -30,4 +30,10 @@ public static class GameVersion
         if (IsVersionA) return "Fortisio";
         else return "Bankoleo";
     }
+
+    public static string GetPassword()
+    {
+        if (IsVersionA) return "Y5rd6C12m";
+        else return "Z6se7D23n";
+    }
 }

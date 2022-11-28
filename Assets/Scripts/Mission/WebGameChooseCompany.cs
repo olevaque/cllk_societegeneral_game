@@ -12,12 +12,16 @@ public class WebGameChooseCompany : MissionManager
 {
     [Header("General")]
     [SerializeField] private CaptainController captainController;
+    [SerializeField] private TextMeshProUGUI headerTitleTxt;
+
     [SerializeField] private Sprite sierraBackgroundA, sierraBackgroundB;
     [SerializeField] private Image sierraBackgroundImg;
 
     protected override void OnEnable()
     {
         base.OnEnable();
+
+        Main.TimerManager.OnTimerUpdate += OnTimerUpdate;
 
         captainController.onProposePassword += OnProposePassword;
         captainController.onProposeCode += OnProposeCode;
@@ -31,6 +35,8 @@ public class WebGameChooseCompany : MissionManager
     {
         base.OnDisable();
 
+        Main.TimerManager.OnTimerUpdate -= OnTimerUpdate;
+
         captainController.onProposePassword -= OnProposePassword;
         captainController.onProposeCode -= OnProposeCode;
         captainController.onProposeSendReport -= OnProposeSendReport;
@@ -39,12 +45,18 @@ public class WebGameChooseCompany : MissionManager
         captainController.onCaptainInfoChange -= OnCaptainInfoChange;
     }
 
+    private void OnTimerUpdate(int arg1, int arg2, float arg3, string minSecStr)
+    {
+        headerTitleTxt.text = "Société Générale - " + GameVersion.GetPassword() + " - <color=#E9041E>" + minSecStr + "</color>";
+    }
+
     protected override void Start()
     {
         base.Start();
         
         captainController.Initialise();
         sierraBackgroundImg.sprite = GameVersion.IsVersionA ? sierraBackgroundA : sierraBackgroundB;
+        headerTitleTxt.text = "Société Générale - " + GameVersion.GetPassword();
 
         Main.SocketIOManager.Instance.On("WGCC_CaptainShareInfo", (string data) =>
         {
@@ -143,7 +155,7 @@ public class WebGameChooseCompany : MissionManager
         WGCC_BrainteaserData ccData = new WGCC_BrainteaserData()
         {
             questionId = question,
-            answer = bAnswer
+            answer = bAnswer.Trim().ToLower()
         };
         Main.SocketIOManager.Instance.Emit("WGCC_CaptainProposeBrainteaser", JsonUtility.ToJson(ccData), false);
     }
