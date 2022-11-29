@@ -53,6 +53,7 @@ public class UserVote
 [Serializable]
 public class TimerData
 {
+    public int currentStep;
     public int minutes;
     public int seconds;
 }
@@ -78,6 +79,25 @@ public class InfoSessionData
     public int currentScene;
     public bool isVersionA;
 }
+
+[Serializable]
+public class Docs
+{
+    public string name;
+    public bool isOpen;
+    public int nbView;
+    public int nbOpen;
+    public int timeViewed;
+}
+
+[Serializable]
+public class Player
+{
+    public string psckId;
+    public string pseudo;
+    public Docs[] docViewed;
+}
+
 [Serializable]
 public class SpectatorData
 {
@@ -85,6 +105,8 @@ public class SpectatorData
     public string name;
     public int currentScene;
     public int currentStep;
+    public Player[] players;
+    public string timer;
 }
 
 [Serializable]
@@ -98,6 +120,11 @@ public class WG_NextStepData
     public int nextStep;
 }
 
+[Serializable]
+public class WGCC_OpenCloseDocument
+{
+    public string docName;
+}
 [Serializable]
 public class WGCC_PasswordData
 {
@@ -119,13 +146,6 @@ public class CurrentCaptainData
 {
     public bool youAreCaptain;
     public Player captain;
-}
-
-[Serializable]
-public class Player
-{
-    public string psckId;
-    public string pseudo;
 }
 
 [Serializable]

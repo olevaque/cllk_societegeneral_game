@@ -4,15 +4,21 @@ using UnityEngine;
 
 public class Document : MonoBehaviour
 {
-    public void Open(string docName)
+    public void Open(string document)
     {
-        Debug.Log("Open: " + docName);
-        Main.SocketIOManager.Instance.Emit("requestOpenDocument");
+        WGCC_OpenCloseDocument ocData = new WGCC_OpenCloseDocument()
+        {
+            docName = document
+        };
+        Main.SocketIOManager.Instance.Emit("WGCC_OpenDocument", JsonUtility.ToJson(ocData), false);
     }
 
-    public void Close(string docName)
+    public void Close(string document)
     {
-        Debug.Log("Close: " + docName);
-        Main.SocketIOManager.Instance.Emit("requestCloseDocument");
+        WGCC_OpenCloseDocument ocData = new WGCC_OpenCloseDocument()
+        {
+            docName = document
+        };
+        Main.SocketIOManager.Instance.Emit("WGCC_CloseDocument", JsonUtility.ToJson(ocData), false);
     }
 }

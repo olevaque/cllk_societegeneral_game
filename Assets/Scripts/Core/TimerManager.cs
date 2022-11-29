@@ -46,7 +46,10 @@ public class TimerManager : MonoBehaviour
             totalSecondsRemaining = minutesRemaining * 60 + secondsRemaining;
             pctProgress = 1f - totalSecondsRemaining / TIMER_40MIN;
 
-            CheckBrainteaser(pctProgress);
+            if (timerData.currentStep != (int)CaptainController.STEP.FINAL_CHOOSE)
+            {
+                CheckBrainteaser(pctProgress);
+            }
 
             OnTimerUpdate?.Invoke(minutesRemaining, secondsRemaining, pctProgress, minutesStr + ":" + secondsStr);
         });
@@ -80,14 +83,17 @@ public class TimerManager : MonoBehaviour
             else
             {
                 totalSecondsRemaining = Mathf.FloorToInt(totalTime - elapsedTime);
-                minutesRemaining = Mathf.FloorToInt((totalSecondsRemaining / 60) % 60); 
+                minutesRemaining = Mathf.FloorToInt((totalSecondsRemaining / 60) % 60);
                 secondsRemaining = Mathf.FloorToInt(totalSecondsRemaining % 60);
                 pctProgress = 1f - totalSecondsRemaining / totalTime;
 
                 string minutesStr = minutesRemaining < 10 ? "0" + minutesRemaining : minutesRemaining.ToString();
                 string secondsStr = secondsRemaining < 10 ? "0" + secondsRemaining : secondsRemaining.ToString();
 
-                CheckBrainteaser(pctProgress);
+                if (isTimer40mStarted)
+                {
+                    CheckBrainteaser(pctProgress);
+                }
 
                 OnTimerUpdate?.Invoke(minutesRemaining, secondsRemaining, pctProgress, minutesStr + ":" + secondsStr);
             }

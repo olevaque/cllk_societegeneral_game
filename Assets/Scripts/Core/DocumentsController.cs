@@ -156,6 +156,10 @@ public class DocumentsController : MonoBehaviour
 
         docZoomedPnl.SetActive(true);
 
+        // Close the previous document
+        if (currentDocOpen) currentDocOpen.Close(currentDocOpen.name);
+
+        // Open the new one
         currentDocOpen = thumbnailRequest.GetComponent<Document>();
         if (currentDocOpen is SoundDocument)
         {
@@ -176,6 +180,7 @@ public class DocumentsController : MonoBehaviour
 
     private void HideZoomedDoc()
     {
+        // Close the previous document
         if (currentDocOpen) currentDocOpen.Close(currentDocOpen.name);
 
         docZoomedPnl.SetActive(false);
