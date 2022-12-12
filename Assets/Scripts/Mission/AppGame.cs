@@ -117,10 +117,30 @@ public class AppGame : MonoBehaviour
 
     private void OnProposeBrainTeaser(int brainteaserIndex, string answer)
     {
-        if (    (brainteaserIndex == 0 && answer == "tuesday") ||
-                (brainteaserIndex == 1 && answer == "4") ||
-                (brainteaserIndex == 2 && answer == "7") ||
-                (brainteaserIndex == 3 && answer == "10"))
+        answer = answer.Trim().ToLower();
+
+        if (    (GameVersion.IsVersionA && brainteaserIndex == 0 && answer == "4") ||
+                (GameVersion.IsVersionA && brainteaserIndex == 1 && answer == "7") ||
+                (GameVersion.IsVersionA && brainteaserIndex == 2 && answer.Contains("promise")) ||
+                (GameVersion.IsVersionA && brainteaserIndex == 3 && answer.Contains("son")) ||
+                (GameVersion.IsVersionA && brainteaserIndex == 4 && answer == "its") ||
+                (GameVersion.IsVersionA && brainteaserIndex == 5 && answer == "one") ||
+                (GameVersion.IsVersionA && brainteaserIndex == 6 && answer == "short") ||
+                (GameVersion.IsVersionA && brainteaserIndex == 7 && answer == "u472bmt") ||
+                (GameVersion.IsVersionA && brainteaserIndex == 8 && answer == "4") ||
+                (GameVersion.IsVersionA && brainteaserIndex == 9 && answer == "21") ||
+
+                (!GameVersion.IsVersionA && brainteaserIndex == 0 && answer == "4") ||
+                (!GameVersion.IsVersionA && brainteaserIndex == 1 && answer == "8") ||
+                (!GameVersion.IsVersionA && brainteaserIndex == 2 && answer.Contains("tea bag")) ||
+                (!GameVersion.IsVersionA && brainteaserIndex == 3 && answer == "incorrectly") ||
+                (!GameVersion.IsVersionA && brainteaserIndex == 4 && answer.Contains("everest")) ||
+                (!GameVersion.IsVersionA && brainteaserIndex == 5 && answer == "s") ||
+                (!GameVersion.IsVersionA && brainteaserIndex == 6 && answer == "tuesday") ||
+                (!GameVersion.IsVersionA && brainteaserIndex == 7 && answer == "white") ||
+                (!GameVersion.IsVersionA && brainteaserIndex == 8 && answer == "20") ||
+                (!GameVersion.IsVersionA && brainteaserIndex == 9 && answer == "22")
+                )
         {
             captainController.DisplayGoodBrainteaser();
             Main.TimerManager.AddExtraTime(30);

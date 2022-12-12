@@ -77,6 +77,9 @@ public class DocumentsController : MonoBehaviour
     {
         modalsController.CloseModal();
 
+        UnlockData agree = new UnlockData() { folderUnlock = idLock };
+        Main.SocketIOManager.Instance.Emit("WGCC_UnlockFolder", JsonUtility.ToJson(agree), false);
+
         unlockedFolders[idLock] = true;
         UpdateDisplayLockers();
     }

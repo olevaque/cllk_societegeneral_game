@@ -28,9 +28,8 @@ public class CaptainController : MonoBehaviour
     public event Action onProposeFinalChoose;
     public event Action<WGCC_Data> onCaptainInfoChange;
 
-    public enum STEP { PASSWORD, CODE, PRINCIPAL_MISSION, BRAINTEASER, TRANSVERSAL, FINAL_CHOOSE };
+    public enum STEP { PASSWORD, CODE, PRINCIPAL_MISSION, FINAL_CHOOSE };
     private STEP currentStep = STEP.PASSWORD;
-    private STEP previousStep = STEP.PASSWORD;
 
     [Header("General")]
     [SerializeField] private Image youAreCaptainImg;
@@ -81,6 +80,8 @@ public class CaptainController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI finalTimerTxt, chooseC1Txt, chooseC2Txt;
     [SerializeField] private Button company1Btn, company2Btn, noCompanyBtn, finalChooseBtn;
 
+    private List<string> brainteasers = new List<string>();
+
     private RectTransform panelRct;
 
     private bool isPanelRetracted = false;
@@ -88,10 +89,41 @@ public class CaptainController : MonoBehaviour
 
     private bool isCaptain = false;
 
+    private bool isMissionBrainteaser = false;
+    private bool isMissionTransversal = false;
+
     WGCC_Data wgccData = new WGCC_Data();
 
     private void Awake()
     {
+        brainteasers = new List<string>();
+        if (GameVersion.IsVersionA)
+        {
+            brainteasers.Add("10 black socks, 8 red socks and 6 white socks are mixed in a drawer. The room is dark. How many socks must be extracted at the MINIMUM in order to be SURE of having two socks of the same color?");
+            brainteasers.Add("Max and Astrid are siblings. Max says he has as many brothers as sisters. Astrid says she has twice as many brothers as she has sisters. How many siblings are there in total?");
+            brainteasers.Add("What gets broken without being held?");
+            brainteasers.Add("A man is looking at a photograph of someone. His friend asks who it is. The man replies, “Brothers and sisters, I have none. But that man’s father is my father’s son.”. Who was in the photograph?");
+            brainteasers.Add("Guess the next three letters in the series GTNTL.");
+            brainteasers.Add("As I was going to St. Ives, I met a man with seven wives. Each wife had seven sacks, Each sack had seven cats, Each cat had seven kits. Kits, cats, sacks and wives. How many were going to St. Ives?");
+            brainteasers.Add("What 5-letter word becomes shorter when you add two letters to it?");
+            brainteasers.Add("A man wanted to encrypt his password but he needed to do it in a way so that he could remember it. He had to use seven characters consisting of letters and numbers only (no symbols like ! or <). In order to remember it, he wrote down “You force heaven to be empty.”. What is his password?");
+            brainteasers.Add("If you take my son’s age and multiply it by one and a half times his age you get 24. How old is my son?");
+            brainteasers.Add("How many times does the number 1 appears between 0 and 100 ?");
+        }
+        else
+        {
+            brainteasers.Add("If 9999 = 4, 8888 = 8, 1816 = 6, 1212 = 0, then 1919 =");
+            brainteasers.Add("Turn Me On My Side And I Am Everything. Cut Me In Half And I Am Nothing. What Am I?");
+            brainteasers.Add("It goes in dry, it comes out wet, the longer it is in, the stronger it gets. What is it?");
+            brainteasers.Add("Which word in the dictionary is spelled incorrectly?");
+            brainteasers.Add("Before Mt. Everest was discovered, what was the highest mountain in the world?");
+            brainteasers.Add("I am the beginning of sorrow and the end of sickness. You cannot express happiness without me yet I am in the midst of crosses. I am always in risk yet never in danger. You may find me in the sun, but I am never out of darkness.");
+            brainteasers.Add("Which day comes three days after the day that comes two days after the day that comes immediately after the day that comes two days after Monday?");
+            brainteasers.Add("I left my campsite and hiked south for 3 miles. Then I turned east and hiked for 3 miles. I then turned north and hiked for 3 miles, at which time I came upon a bear inside my tent eating my food! What color was the bear?");
+            brainteasers.Add("It is 8:40 pm Without looking at your watch, what is the difference in degrees between the small and the big watch hands?");
+            brainteasers.Add("How many times a day do a clock’s hands overlap?");
+        }
+
         panelRct = GetComponent<RectTransform>();
     }
 
@@ -252,7 +284,6 @@ public class CaptainController : MonoBehaviour
 
     public void GotoStep(STEP step)
     {
-        previousStep = currentStep;
         currentStep = step;
 
         UpdatePanelDisplay();
@@ -363,23 +394,23 @@ public class CaptainController : MonoBehaviour
 
     private void UpdatePanelDisplay()
     {
-        //Header
-        headerPnl.SetActive(currentStep == STEP.CODE || currentStep == STEP.PRINCIPAL_MISSION || currentStep == STEP.TRANSVERSAL);
+        // Header
+        headerPnl.SetActive((currentStep == STEP.CODE || currentStep == STEP.PRINCIPAL_MISSION || isMissionTransversal) && !isMissionBrainteaser);
 
         // Left part
         if (IsAppPC)
         {
-            leftPart.SetActive(currentStep == STEP.PASSWORD || currentStep == STEP.CODE || currentStep == STEP.BRAINTEASER || currentStep == STEP.FINAL_CHOOSE);
+            leftPart.SetActive(currentStep == STEP.PASSWORD || currentStep == STEP.CODE || currentStep == STEP.FINAL_CHOOSE || isMissionBrainteaser);
         }
         timerPnl.SetActive(currentStep == STEP.PASSWORD || currentStep == STEP.CODE || currentStep == STEP.FINAL_CHOOSE);
-        brainTeaserLeftPnl.SetActive(currentStep == STEP.BRAINTEASER);
+        brainTeaserLeftPnl.SetActive(isMissionBrainteaser);
 
         // Right part
         passwordPnl.SetActive(currentStep == STEP.PASSWORD);
         codePnl.SetActive(currentStep == STEP.CODE);
         principalMissionPnl.SetActive(currentStep == STEP.PRINCIPAL_MISSION);
-        brainTeaserRightPnl.SetActive(currentStep == STEP.BRAINTEASER);
-        transversalPnl.SetActive(currentStep == STEP.TRANSVERSAL);
+        brainTeaserRightPnl.SetActive(isMissionBrainteaser);
+        transversalPnl.SetActive(isMissionTransversal);
         finalChoosePnl.SetActive(currentStep == STEP.FINAL_CHOOSE);
 
         // Specific
@@ -462,7 +493,7 @@ public class CaptainController : MonoBehaviour
     #region BrainTeaser
     private void OnBrainTeaserStart(int index)
     {
-        DisplayBrainteaser(index);
+        DisplayBrainteaser();
     }
 
     private void OnBrainTeaserUpdate(string timer)
@@ -476,28 +507,14 @@ public class CaptainController : MonoBehaviour
         HideBrainteaser();
     }
 
-    private void DisplayBrainteaser(int idBrainTeaser)
+    private void DisplayBrainteaser()
     {
-        GotoStep(STEP.BRAINTEASER);
+        isMissionBrainteaser = true;
+        UpdatePanelDisplay();
 
-        brainteaserIndex = idBrainTeaser;
-
-        if (idBrainTeaser == 0)
-        {
-            brainteaserQuestionTxt.text = "Which day comes three days after the day that comes two days after the day that comes immediately after the day that comes two days after Monday?";
-        }
-        else if (idBrainTeaser == 1)
-        {
-            brainteaserQuestionTxt.text = "10 black socks, 8 red socks and 6 white socks are mixed in a drawer. The room is dark. How many socks must be extracted at the MINIMUM in order to be SURE of having two socks of the same color?";
-        }
-        else if (idBrainTeaser == 2)
-        {
-            brainteaserQuestionTxt.text = "Max and Astrid are siblings. Max says he has as many brothers as sisters. Astrid says she has twice as many brothers as she has sisters. How many siblings are there in total?";
-        }
-        else if (idBrainTeaser == 3)
-        {
-            brainteaserQuestionTxt.text = "I am 4 times my son's age. In 20 years, I'll be twice his age. How old is my son today ?";
-        }
+        brainteaserIndex = UnityEngine.Random.Range(0, brainteasers.Count);
+        brainteaserQuestionTxt.text = brainteasers[brainteaserIndex];
+        brainteasers.RemoveAt(brainteaserIndex);
 
         if (isPanelRetracted)
         {
@@ -511,7 +528,8 @@ public class CaptainController : MonoBehaviour
     }
     private void HideBrainteaser()
     {
-        if (currentStep == STEP.BRAINTEASER) GotoStep(previousStep);
+        isMissionBrainteaser = false;
+        UpdatePanelDisplay();
     }
     private void OnBrainteaserGbibValidate()
     {
@@ -595,16 +613,18 @@ public class CaptainController : MonoBehaviour
     #region TransversalMission
     private void OnTransversalClick()
     {
-        if (currentStep == STEP.TRANSVERSAL)
+        isMissionTransversal = !isMissionTransversal;
+
+        if (!isMissionTransversal)
         {
             transversalBtnTxt.text = "Transversal mission";
-            GotoStep(previousStep);
         }
         else
         {
             transversalBtnTxt.text = "Back";
-            GotoStep(STEP.TRANSVERSAL);
         }
+
+        UpdatePanelDisplay();
     }
     private void OnTransversal1Click()
     {

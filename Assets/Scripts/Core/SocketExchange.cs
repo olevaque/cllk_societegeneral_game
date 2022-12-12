@@ -85,6 +85,7 @@ public class Docs
 {
     public string name;
     public bool isOpen;
+    public bool isLock;
     public int nbView;
     public int nbOpen;
     public int timeViewed;
@@ -95,7 +96,24 @@ public class Player
 {
     public string psckId;
     public string pseudo;
+}
+
+[Serializable]
+public class PlayerForSpectator
+{
+    public string psckId;
+    public string pseudo;
     public Docs[] docViewed;
+    public bool hasDisconnect;
+    public int menuTimeViewed;
+}
+
+[Serializable]
+public class RoomSpectatorInfo
+{
+    public Player captainForSpectator;
+    public PlayerForSpectator[] playersForSpectator;
+    public WGCC_Data wgccData;
 }
 
 [Serializable]
@@ -105,7 +123,7 @@ public class SpectatorData
     public string name;
     public int currentScene;
     public int currentStep;
-    public Player[] players;
+    public RoomSpectatorInfo roomSpectatorInfo;
     public string timer;
 }
 
@@ -176,4 +194,10 @@ public class AgreementData
 public class MX_Debug
 {
     public string debugMessage;
+}
+
+[Serializable]
+public class UnlockData
+{
+    public int folderUnlock;
 }

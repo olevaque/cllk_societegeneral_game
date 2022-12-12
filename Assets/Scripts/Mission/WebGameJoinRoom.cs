@@ -98,7 +98,7 @@ public class WebGameJoinRoom : MonoBehaviour
         firstnameIpt.text = "Editor";
         initialNameIpt.text = "ED";
 
-        OnSendMessageReceived("52fb146f-026c-4ab3-9d99-c01201c28a1f");
+        OnSendMessageReceived("52fb146f-026c-4ab3-9d99-c01201c28a1f_SP");
 #endif
     }
 

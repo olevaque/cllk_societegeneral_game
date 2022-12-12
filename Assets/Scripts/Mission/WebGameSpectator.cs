@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,12 +7,36 @@ using TMPro;
 
 public class WebGameSpectator : MonoBehaviour
 {
-    [SerializeField] private GameObject prefabPlayerName, prefabPlayerInfos;
+    private enum TAB { CAPTAIN, DOCUMENTS, COMPANY };
+    private TAB currentTab = TAB.CAPTAIN;
 
+    [Header("PlayerPrefab")]
+    [SerializeField] private GameObject prefabPlayerName, prefabPlayerInfos;
     [SerializeField] private Transform playerNameContainer;
-    [SerializeField] private TextMeshProUGUI gameStatusTxt, timerTxt, sessionDateTxt;
-    [SerializeField] private Slider sliderStep, sliderScene;
-    [SerializeField] private CanvasGroup foldersCg;
+
+    [Header("Header")]
+    [SerializeField] private Slider sliderScene;
+    [SerializeField] private TextMeshProUGUI gameStatusTxt, timerTxt, sessionDateTxt, versionTxt;
+
+    [Header("General")]
+    [SerializeField] private Button tabGeneral;
+    [SerializeField] private GameObject tabContent;
+    [SerializeField] private TextMeshProUGUI captainsTxt;
+
+    [Header("Documents")]
+    [SerializeField] private Button tabDocuments;
+    [SerializeField] private GameObject tabContentDocuments;
+    [SerializeField] private GameObject XMenu;
+    [SerializeField] private Sprite docLockSpt, docViewSpt;
+
+    [Header("Company")]
+    [SerializeField] private Button tabCompany;
+    [SerializeField] private GameObject tabContentCompany;
+    [SerializeField] private Slider bngL1C1P1Sld, bngL1C2P1Sld, bngL2C1P1Sld, bngL2C2P1Sld, bngL3C1P1Sld, bngL3C2P1Sld;
+    [SerializeField] private Slider bngL1C1P2Sld, bngL1C2P2Sld, bngL2C1P2Sld, bngL2C2P2Sld, bngL3C1P2Sld, bngL3C2P2Sld;
+    [SerializeField] private Slider bngL1C1P3Sld, bngL1C2P3Sld, bngL2C1P3Sld, bngL2C2P3Sld, bngL3C1P3Sld, bngL3C2P3Sld;
+    [SerializeField] private Slider bngL1C1P4Sld, bngL1C2P4Sld, bngL2C1P4Sld, bngL2C2P4Sld, bngL3C1P4Sld, bngL3C2P4Sld;
+    [SerializeField] private TextMeshProUGUI finalCompanyTxt;
 
     private SpectatorDoc[] spectatorsDocs;
     private float timeSinceLastUpdateSpectator;
@@ -22,23 +46,51 @@ public class WebGameSpectator : MonoBehaviour
         spectatorsDocs = FindObjectsOfType<SpectatorDoc>();
     }
 
+    private void OnEnable()
+    {
+        tabGeneral.onClick.AddListener(OnTabCaptainClick);
+        tabDocuments.onClick.AddListener(OnTabDocumentsClick);
+        tabCompany.onClick.AddListener(OnTabCompanyClick);
+    }
+
+    private void OnDisable()
+    {
+        tabGeneral.onClick.RemoveListener(OnTabCaptainClick);
+        tabDocuments.onClick.RemoveListener(OnTabDocumentsClick);
+        tabCompany.onClick.RemoveListener(OnTabCompanyClick);
+    }
+
     private void Start()
     {
         Main.SocketIOManager.Instance.On("spectatorInfo", (string data) =>
         {
             SpectatorData specData = JsonUtility.FromJson<SpectatorData>(data);
-            gameStatusTxt.text = "GAME: " + specData.name + " - <color=#E9041E>" + (specData.currentScene < 4 ? "In progress" : "Completed") + "</color> <size=22>- Version" + (specData.isVersionA ? "A" : "B") + "</size>";
+            GameVersion.IsVersionA = specData.isVersionA;
 
+            gameStatusTxt.text = specData.name + " - <color=#E9041E>" + (specData.currentScene < 4 ? "In progress" : "Completed") + "</color>";
+            versionTxt.text = "Version " + (specData.isVersionA ? "A" : "B");
             timerTxt.text = specData.timer;
 
             sliderScene.value = specData.currentScene;
-            sliderStep.value = specData.currentStep;
 
-            foldersCg.alpha = specData.currentScene == 3 ? 1f : .1f;
-            foldersCg.interactable = specData.currentScene == 3;
-            foldersCg.blocksRaycasts = specData.currentScene == 3;
+            //////////////////////
+            // General
+            string captains = "-";
+            /*for (int i=0; i<specData.roomSpectatorInfo.capitainsForSpectator.Length; i++)
+            {
+                if (i == specData.roomSpectatorInfo.capitainsForSpectator.Length - 1)
+                {
+                    captains += "<color=\"red\">" + specData.roomSpectatorInfo.capitainsForSpectator[i].pseudo + "</color>";
+                }
+                else
+                {
+                    captains += "<s>" + specData.roomSpectatorInfo.capitainsForSpectator[i].pseudo + "</s>, ";
+                }
+            }*/
+            captainsTxt.text = captains;
 
-            // Clean les playersName et playersInfos précédent
+            //////////////////////
+            // Documents
             foreach (Transform child in playerNameContainer)
             {
                 Destroy(child.gameObject);
@@ -51,37 +103,105 @@ public class WebGameSpectator : MonoBehaviour
                 }
             }
 
-            foreach(Player player in specData.players)
+            foreach (PlayerForSpectator playerForSpectator in specData.roomSpectatorInfo.playersForSpectator)
             {
+                // PlayerName
                 GameObject playerGo = Instantiate(prefabPlayerName, playerNameContainer);
-                playerGo.GetComponentInChildren<TextMeshProUGUI>().text = player.pseudo;
+                if (playerForSpectator.hasDisconnect)
+                {
+                    playerGo.GetComponentInChildren<TextMeshProUGUI>().text = "<s>" + playerForSpectator.pseudo + "</s>";
+                    playerGo.GetComponentInChildren<TextMeshProUGUI>().color = Color.gray;
+                }
+                else
+                {
+                    playerGo.GetComponentInChildren<TextMeshProUGUI>().text = playerForSpectator.pseudo;
+                }
+                if (specData.roomSpectatorInfo.captainForSpectator.psckId == playerForSpectator.psckId) playerGo.GetComponentInChildren<TextMeshProUGUI>().text += "(C)";
 
-                foreach(Docs docs in player.docViewed)
+                bool playerHasADocOpen = false;
+
+                // PlayerDocs
+                foreach (Docs docs in playerForSpectator.docViewed)
                 {
                     string objToFind = "X" + docs.name.Substring(1);
                     GameObject docGo = GameObject.Find(objToFind);
                     if (docGo)
                     {
-                        float minutesRemaining = Mathf.FloorToInt((docs.timeViewed / 60) % 60);
-                        float secondsRemaining = Mathf.FloorToInt(docs.timeViewed % 60);
-                        string minutesStr = minutesRemaining < 10 ? "0" + minutesRemaining : minutesRemaining.ToString();
-                        string secondsStr = secondsRemaining < 10 ? "0" + secondsRemaining : secondsRemaining.ToString();
 
                         Transform playerInfosPnl = docGo.transform.GetChild(1);
                         GameObject playerInfoGo = Instantiate(prefabPlayerInfos, playerInfosPnl);
+                        playerInfoGo.GetComponentInChildren<Image>().sprite = docs.isLock ? docLockSpt : docViewSpt;
                         playerInfoGo.GetComponentInChildren<Image>().color = docs.isOpen ? Color.red : new Color(.5f, .5f, .5f, .5f);
                         playerInfoGo.GetComponentsInChildren<TextMeshProUGUI>()[0].text = docs.nbOpen.ToString();
-                        playerInfoGo.GetComponentsInChildren<TextMeshProUGUI>()[1].text = minutesStr + ":" + secondsStr;
+                        playerInfoGo.GetComponentsInChildren<TextMeshProUGUI>()[1].text = secondToFormattedTime(docs.timeViewed);
+
+                        if (docs.isOpen) playerHasADocOpen = true;
                     }
                     else
                     {
                         Debug.Log("Couldn't find doc: " + objToFind);
                     }
                 }
+
+                // Menu
+                Transform menuInfosPnl = XMenu.transform.GetChild(1);
+                GameObject menuInfoGo = Instantiate(prefabPlayerInfos, menuInfosPnl);
+                menuInfoGo.GetComponentInChildren<Image>().sprite = docViewSpt;
+                menuInfoGo.GetComponentInChildren<Image>().color = !playerHasADocOpen ? Color.red : new Color(.5f, .5f, .5f, .5f);
+                menuInfoGo.GetComponentsInChildren<TextMeshProUGUI>()[0].text = "-";
+                menuInfoGo.GetComponentsInChildren<TextMeshProUGUI>()[1].text = secondToFormattedTime(playerForSpectator.menuTimeViewed);
+            }
+
+            //////////////////////
+            // Company
+            bngL1C1P1Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL1C1P1);
+            bngL1C2P1Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL1C2P1);
+            bngL2C1P1Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL2C1P1);
+            bngL2C2P1Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL2C2P1);
+            bngL3C1P1Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL3C1P1);
+            bngL3C2P1Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL3C2P1);
+
+            bngL1C1P2Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL1C1P2);
+            bngL1C2P2Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL1C2P2);
+            bngL2C1P2Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL2C1P2);
+            bngL2C2P2Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL2C2P2);
+            bngL3C1P2Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL3C1P2);
+            bngL3C2P2Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL3C2P2);
+
+            bngL1C1P3Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL1C1P3);
+            bngL1C2P3Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL1C2P3);
+            bngL2C1P3Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL2C1P3);
+            bngL2C2P3Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL2C2P3);
+            bngL3C1P3Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL3C1P3);
+            bngL3C2P3Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL3C2P3);
+
+            bngL1C1P4Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL1C1P4);
+            bngL1C2P4Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL1C2P4);
+            bngL2C1P4Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL2C1P4);
+            bngL2C2P4Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL2C2P4);
+            bngL3C1P4Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL3C1P4);
+            bngL3C2P4Sld.SetValueWithoutNotify(specData.roomSpectatorInfo.wgccData.bngL3C2P4);
+
+            if (specData.roomSpectatorInfo.wgccData.company == 0)
+            {
+                finalCompanyTxt.text = "-";
+            }
+            else if (specData.roomSpectatorInfo.wgccData.company == 1)
+            {
+                finalCompanyTxt.text = GameVersion.GetCompany1Name();
+            }
+            else if (specData.roomSpectatorInfo.wgccData.company == 2)
+            {
+                finalCompanyTxt.text = GameVersion.GetCompany2Name();
+            }
+            else
+            {
+                finalCompanyTxt.text = "No choose";
             }
         });
 
         sessionDateTxt.text = "Session of " + DateTime.Now.ToString("MM/dd/yyyy");
+        UpdateTabs();
     }
 
     private void OnDestroy()
@@ -93,7 +213,7 @@ public class WebGameSpectator : MonoBehaviour
     {
         timeSinceLastUpdateSpectator += Time.deltaTime;
 
-        if (timeSinceLastUpdateSpectator > 1)
+        if (timeSinceLastUpdateSpectator > 2)
         {
             timeSinceLastUpdateSpectator = 0;
 
@@ -103,5 +223,44 @@ public class WebGameSpectator : MonoBehaviour
             };
             Main.SocketIOManager.Instance.Emit("requestSpectator", JsonUtility.ToJson(uuidSession), false);
         }
+    }
+
+    private void OnTabCaptainClick()
+    {
+        currentTab = TAB.CAPTAIN;
+        UpdateTabs();
+    }
+
+    private void OnTabDocumentsClick()
+    {
+        currentTab = TAB.DOCUMENTS;
+        UpdateTabs();
+    }
+
+    private void OnTabCompanyClick()
+    {
+        currentTab = TAB.COMPANY;
+        UpdateTabs();
+    }
+
+    private void UpdateTabs()
+    {
+        tabContent.SetActive(currentTab == TAB.CAPTAIN);
+        tabContentDocuments.SetActive(currentTab == TAB.DOCUMENTS);
+        tabContentCompany.SetActive(currentTab == TAB.COMPANY);
+
+        tabGeneral.GetComponent<Image>().color = currentTab == TAB.CAPTAIN ? new Color(0.8039216f, 0, 0.01176471f, 1f) : new Color(0.8980392f, 0.372549f, 0.3137255f, 0.5019608f);
+        tabDocuments.GetComponent<Image>().color = currentTab == TAB.DOCUMENTS ? new Color(0.8039216f, 0, 0.01176471f, 1f) : new Color(0.8980392f, 0.372549f, 0.3137255f, 0.5019608f);
+        tabCompany.GetComponent<Image>().color = currentTab == TAB.COMPANY ? new Color(0.8039216f, 0, 0.01176471f, 1f) : new Color(0.8980392f, 0.372549f, 0.3137255f, 0.5019608f);
+    }
+
+    private string secondToFormattedTime(int sec)
+    {
+        float minutesRemaining = Mathf.FloorToInt((sec / 60) % 60);
+        float secondsRemaining = Mathf.FloorToInt(sec % 60);
+        string minutesStr = minutesRemaining < 10 ? "0" + minutesRemaining : minutesRemaining.ToString();
+        string secondsStr = secondsRemaining < 10 ? "0" + secondsRemaining : secondsRemaining.ToString();
+
+        return minutesStr + ":" + secondsStr;
     }
 }
