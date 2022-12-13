@@ -51,6 +51,13 @@ public class UserVote
 }
 
 [Serializable]
+public class UserVoteCaptain
+{
+    public Player player;
+    public Player vote;
+}
+
+[Serializable]
 public class TimerData
 {
     public int currentStep;
@@ -113,6 +120,7 @@ public class RoomSpectatorInfo
 {
     public Player captainForSpectator;
     public PlayerForSpectator[] playersForSpectator;
+    public UserVoteCaptain[] captainVoteFinal;
     public WGCC_Data wgccData;
 }
 

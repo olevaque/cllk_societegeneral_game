@@ -26,6 +26,7 @@ public class CaptainController : MonoBehaviour
     public event Action<int, string> onProposeBrainteaser;
     public event Action onProposeSendReport;
     public event Action onProposeFinalChoose;
+    public event Action<int> onAutoProposeRandomBrainteaser;
     public event Action<WGCC_Data> onCaptainInfoChange;
 
     public enum STEP { PASSWORD, CODE, PRINCIPAL_MISSION, FINAL_CHOOSE };
@@ -493,6 +494,20 @@ public class CaptainController : MonoBehaviour
     #region BrainTeaser
     private void OnBrainTeaserStart(int index)
     {
+        brainteaserIndex = UnityEngine.Random.Range(0, brainteasers.Count);
+        if (!IsAppPC && isCaptain)
+        {
+            onAutoProposeRandomBrainteaser?.Invoke(brainteaserIndex);
+        }
+        if (IsAppPC)
+        {
+            DisplayBrainteaser();
+        }
+    }
+
+    public void BrainTeaserStartFromCaptain(int index)
+    {
+        brainteaserIndex = index;
         DisplayBrainteaser();
     }
 
@@ -512,7 +527,6 @@ public class CaptainController : MonoBehaviour
         isMissionBrainteaser = true;
         UpdatePanelDisplay();
 
-        brainteaserIndex = UnityEngine.Random.Range(0, brainteasers.Count);
         brainteaserQuestionTxt.text = brainteasers[brainteaserIndex];
         brainteasers.RemoveAt(brainteaserIndex);
 

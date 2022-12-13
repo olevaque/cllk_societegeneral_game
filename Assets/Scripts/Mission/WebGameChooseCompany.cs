@@ -28,6 +28,7 @@ public class WebGameChooseCompany : MissionManager
         captainController.onProposeSendReport += OnProposeSendReport;
         captainController.onProposeFinalChoose += OnProposeFinalChoose;
         captainController.onProposeBrainteaser += OnProposeBrainteaser;
+        captainController.onAutoProposeRandomBrainteaser += OnAutoProposeRandomBrainteaser;
         captainController.onCaptainInfoChange += OnCaptainInfoChange;
     }
 
@@ -42,6 +43,7 @@ public class WebGameChooseCompany : MissionManager
         captainController.onProposeSendReport -= OnProposeSendReport;
         captainController.onProposeFinalChoose -= OnProposeFinalChoose;
         captainController.onProposeBrainteaser -= OnProposeBrainteaser;
+        captainController.onAutoProposeRandomBrainteaser -= OnAutoProposeRandomBrainteaser;
         captainController.onCaptainInfoChange -= OnCaptainInfoChange;
     }
 
@@ -93,6 +95,12 @@ public class WebGameChooseCompany : MissionManager
         {
             captainController.DisplayWrongBrainteaser();
         });
+        Main.SocketIOManager.Instance.On("WGCC_CaptainShareBrainteaserId", (string data) =>
+        {
+            WGCC_BrainteaserData ccData = JsonUtility.FromJson<WGCC_BrainteaserData>(data);
+            captainController.BrainTeaserStartFromCaptain(ccData.questionId);
+        });
+
         Main.SocketIOManager.Instance.On("currentCaptain", (string data) =>
         {
             CurrentCaptainData ccData = JsonUtility.FromJson<CurrentCaptainData>(data);
@@ -158,6 +166,15 @@ public class WebGameChooseCompany : MissionManager
             answer = bAnswer.Trim().ToLower()
         };
         Main.SocketIOManager.Instance.Emit("WGCC_CaptainProposeBrainteaser", JsonUtility.ToJson(ccData), false);
+    }
+
+    private void OnAutoProposeRandomBrainteaser(int brainteaserId)
+    {
+        WGCC_BrainteaserData ccData = new WGCC_BrainteaserData()
+        {
+            questionId = brainteaserId
+        };
+        Main.SocketIOManager.Instance.Emit("WGCC_CaptainAutoInformBrainteaserId", JsonUtility.ToJson(ccData), false);
     }
 
     private void OnCaptainInfoChange(WGCC_Data captainInfo)

@@ -96,7 +96,7 @@ public class ValidationController : MonoBehaviour
             Image voteImg = userVoteGo.GetComponentsInChildren<Image>()[1];
             RectTransform voteImgRect = voteImg.GetComponent<RectTransform>();
 
-            if (userVote.vote == "vote-agree" || userVote.vote == "vote-disagree")
+            if (userVote.vote != "no-vote")
             {
                 nbHasVoted++;
                 voteImg.sprite = voteDoneSpt;

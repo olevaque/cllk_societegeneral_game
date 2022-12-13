@@ -76,17 +76,14 @@ public class WebGameSpectator : MonoBehaviour
             //////////////////////
             // General
             string captains = "-";
-            /*for (int i=0; i<specData.roomSpectatorInfo.capitainsForSpectator.Length; i++)
+            if (specData.roomSpectatorInfo.captainVoteFinal != null)
             {
-                if (i == specData.roomSpectatorInfo.capitainsForSpectator.Length - 1)
+                captains = string.Empty;
+                foreach (UserVoteCaptain uv in specData.roomSpectatorInfo.captainVoteFinal)
                 {
-                    captains += "<color=\"red\">" + specData.roomSpectatorInfo.capitainsForSpectator[i].pseudo + "</color>";
+                    captains += "<color=#E9041E>" + uv.player.pseudo + "</color> voted for <color=#E9041E>" + uv.vote.pseudo + "</color>\n";
                 }
-                else
-                {
-                    captains += "<s>" + specData.roomSpectatorInfo.capitainsForSpectator[i].pseudo + "</s>, ";
-                }
-            }*/
+            }
             captainsTxt.text = captains;
 
             //////////////////////
@@ -131,15 +128,13 @@ public class WebGameSpectator : MonoBehaviour
                         Transform playerInfosPnl = docGo.transform.GetChild(1);
                         GameObject playerInfoGo = Instantiate(prefabPlayerInfos, playerInfosPnl);
                         playerInfoGo.GetComponentInChildren<Image>().sprite = docs.isLock ? docLockSpt : docViewSpt;
-                        playerInfoGo.GetComponentInChildren<Image>().color = docs.isOpen ? Color.red : new Color(.5f, .5f, .5f, .5f);
+                        playerInfoGo.GetComponentInChildren<Image>().color = docs.isOpen ? Color.red : (docs.isLock ? new Color(.75f, .75f, .75f, .5f) : new Color(.5f, .5f, .5f, .75f));
                         playerInfoGo.GetComponentsInChildren<TextMeshProUGUI>()[0].text = docs.nbOpen.ToString();
                         playerInfoGo.GetComponentsInChildren<TextMeshProUGUI>()[1].text = secondToFormattedTime(docs.timeViewed);
+                        playerInfoGo.GetComponentsInChildren<TextMeshProUGUI>()[0].alpha = docs.isLock ? .25f : 1f;
+                        playerInfoGo.GetComponentsInChildren<TextMeshProUGUI>()[1].alpha = docs.isLock ? .25f : 1f;
 
                         if (docs.isOpen) playerHasADocOpen = true;
-                    }
-                    else
-                    {
-                        Debug.Log("Couldn't find doc: " + objToFind);
                     }
                 }
 
