@@ -10,7 +10,7 @@ using UnityEngine.Events;
 
 public class TimerManager : MonoBehaviour
 {
-    private const int NB_BRAINTEASER = 4;
+    private const int NB_BRAINTEASER = 5;
     private enum BRAINTEASER_STATE { TODO, STARTED, COMPLETE }
 
     public event Action OnTimerComplete;
@@ -134,6 +134,21 @@ public class TimerManager : MonoBehaviour
         pctBrainTrigger[1] = 14 * 60 / TIMER_40MIN;
         pctBrainTrigger[2] = 21 * 60 / TIMER_40MIN;
         pctBrainTrigger[3] = 28 * 60 / TIMER_40MIN;
+        pctBrainTrigger[4] = 35 * 60 / TIMER_40MIN;
+
+        /* DEBUG
+        pctBrainTrigger = new float[NB_BRAINTEASER];
+        pctBrainTrigger[0] = 10 / TIMER_40MIN;
+        pctBrainTrigger[1] = 30 / TIMER_40MIN;
+        pctBrainTrigger[2] = 50 / TIMER_40MIN;
+        pctBrainTrigger[3] = 70 / TIMER_40MIN;
+        pctBrainTrigger[4] = 90 / TIMER_40MIN;
+        pctBrainTrigger[5] = 110 / TIMER_40MIN;
+        pctBrainTrigger[6] = 130 / TIMER_40MIN;
+        pctBrainTrigger[7] = 150 / TIMER_40MIN;
+        pctBrainTrigger[8] = 170 / TIMER_40MIN;
+        pctBrainTrigger[9] = 190 / TIMER_40MIN;
+        */
 
         float pct30s = 90 / TIMER_40MIN;
 

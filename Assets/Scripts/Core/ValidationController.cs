@@ -36,7 +36,11 @@ public class ValidationController : MonoBehaviour
 
     [Header("VoteFail")]
     [SerializeField] private GameObject voteFailPanel;
-    
+
+    [Header("CaptainChanged")]
+    [SerializeField] private TextMeshProUGUI captainChangedTxt;
+    [SerializeField] private GameObject captainChangedPanel;
+
     private CanvasGroup validationArea;
 
     private void Awake()
@@ -125,6 +129,18 @@ public class ValidationController : MonoBehaviour
         propositionTxt.text = proposition;
     }
 
+    public void DisplayCaptainChanged(string newCaptainName)
+    {
+        HideAllAgreementPanels();
+
+        captainChangedTxt.text = "The previous captain has been disconnected.\nThe new captain is <color=#E9041E>" + newCaptainName + "</color>.";
+
+        captainChangedPanel.SetActive(true);
+
+        validationArea.alpha = 1;
+        validationArea.blocksRaycasts = true;
+    }
+
     public void DisplayVoteInProgressPanel(VOTE_STEP step)
     {
         HideAllAgreementPanels();
@@ -155,6 +171,7 @@ public class ValidationController : MonoBehaviour
         agreementWaitingPanel.SetActive(false);
 
         voteFailPanel.SetActive(false);
+        captainChangedPanel.SetActive(false);
     }
 
     private void OnYesAgreementClicked()

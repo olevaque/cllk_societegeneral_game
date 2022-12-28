@@ -115,31 +115,31 @@ public class AppGame : MonoBehaviour
         }
     }
 
-    private void OnProposeBrainTeaser(int brainteaserIndex, string answer)
+    private void OnProposeBrainTeaser(Brainteaser brainteaser, string answer)
     {
         answer = answer.Trim().ToLower();
 
-        if (    (GameVersion.IsVersionA && brainteaserIndex == 0 && answer == "4") ||
-                (GameVersion.IsVersionA && brainteaserIndex == 1 && answer == "7") ||
-                (GameVersion.IsVersionA && brainteaserIndex == 2 && answer.Contains("promise")) ||
-                (GameVersion.IsVersionA && brainteaserIndex == 3 && answer.Contains("son")) ||
-                (GameVersion.IsVersionA && brainteaserIndex == 4 && answer == "its") ||
-                (GameVersion.IsVersionA && brainteaserIndex == 5 && answer == "one") ||
-                (GameVersion.IsVersionA && brainteaserIndex == 6 && answer == "short") ||
-                (GameVersion.IsVersionA && brainteaserIndex == 7 && answer == "u472bmt") ||
-                (GameVersion.IsVersionA && brainteaserIndex == 8 && answer == "4") ||
-                (GameVersion.IsVersionA && brainteaserIndex == 9 && answer == "21") ||
+        if (    (GameVersion.IsVersionA && brainteaser.id == 0 && answer == "4") ||
+                (GameVersion.IsVersionA && brainteaser.id == 1 && answer == "7") ||
+                (GameVersion.IsVersionA && brainteaser.id == 2 && answer.Contains("promise")) ||
+                (GameVersion.IsVersionA && brainteaser.id == 3 && answer.Contains("son")) ||
+                (GameVersion.IsVersionA && brainteaser.id == 4 && answer == "its") ||
+                (GameVersion.IsVersionA && brainteaser.id == 5 && answer == "one") ||
+                (GameVersion.IsVersionA && brainteaser.id == 6 && answer == "short") ||
+                (GameVersion.IsVersionA && brainteaser.id == 7 && answer == "u472bmt") ||
+                (GameVersion.IsVersionA && brainteaser.id == 8 && answer == "4") ||
+                (GameVersion.IsVersionA && brainteaser.id == 9 && answer == "21") ||
 
-                (!GameVersion.IsVersionA && brainteaserIndex == 0 && answer == "4") ||
-                (!GameVersion.IsVersionA && brainteaserIndex == 1 && answer == "8") ||
-                (!GameVersion.IsVersionA && brainteaserIndex == 2 && answer.Contains("tea bag")) ||
-                (!GameVersion.IsVersionA && brainteaserIndex == 3 && answer == "incorrectly") ||
-                (!GameVersion.IsVersionA && brainteaserIndex == 4 && answer.Contains("everest")) ||
-                (!GameVersion.IsVersionA && brainteaserIndex == 5 && answer == "s") ||
-                (!GameVersion.IsVersionA && brainteaserIndex == 6 && answer == "tuesday") ||
-                (!GameVersion.IsVersionA && brainteaserIndex == 7 && answer == "white") ||
-                (!GameVersion.IsVersionA && brainteaserIndex == 8 && answer == "20") ||
-                (!GameVersion.IsVersionA && brainteaserIndex == 9 && answer == "22")
+                (!GameVersion.IsVersionA && brainteaser.id == 0 && answer == "4") ||
+                (!GameVersion.IsVersionA && brainteaser.id == 1 && answer == "8") ||
+                (!GameVersion.IsVersionA && brainteaser.id == 2 && answer.Contains("tea bag")) ||
+                (!GameVersion.IsVersionA && brainteaser.id == 3 && answer == "incorrectly") ||
+                (!GameVersion.IsVersionA && brainteaser.id == 4 && answer.Contains("everest")) ||
+                (!GameVersion.IsVersionA && brainteaser.id == 5 && answer == "s") ||
+                (!GameVersion.IsVersionA && brainteaser.id == 6 && answer == "tuesday") ||
+                (!GameVersion.IsVersionA && brainteaser.id == 7 && answer == "white") ||
+                (!GameVersion.IsVersionA && brainteaser.id == 8 && answer == "20") ||
+                (!GameVersion.IsVersionA && brainteaser.id == 9 && answer == "22")
                 )
         {
             captainController.DisplayGoodBrainteaser();

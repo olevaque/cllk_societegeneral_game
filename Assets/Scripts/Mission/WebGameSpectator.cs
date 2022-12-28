@@ -31,6 +31,7 @@ public class WebGameSpectator : MonoBehaviour
 
     [Header("Company")]
     [SerializeField] private Button tabCompany;
+    [SerializeField] private Image company1_1, company1_2, company2_1, company2_2;
     [SerializeField] private GameObject tabContentCompany;
     [SerializeField] private Slider bngL1C1P1Sld, bngL1C2P1Sld, bngL2C1P1Sld, bngL2C2P1Sld, bngL3C1P1Sld, bngL3C2P1Sld;
     [SerializeField] private Slider bngL1C1P2Sld, bngL1C2P2Sld, bngL2C1P2Sld, bngL2C2P2Sld, bngL3C1P2Sld, bngL3C2P2Sld;
@@ -70,6 +71,11 @@ public class WebGameSpectator : MonoBehaviour
             gameStatusTxt.text = specData.name + " - <color=#E9041E>" + (specData.currentScene < 4 ? "In progress" : "Completed") + "</color>";
             versionTxt.text = "Version " + (specData.isVersionA ? "A" : "B");
             timerTxt.text = specData.timer;
+
+            company1_1.sprite = GameVersion.GetCompany1Icon();
+            company1_2.sprite = GameVersion.GetCompany1Icon();
+            company2_1.sprite = GameVersion.GetCompany2Icon();
+            company2_2.sprite = GameVersion.GetCompany2Icon();
 
             sliderScene.value = specData.currentScene;
 

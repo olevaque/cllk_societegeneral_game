@@ -7,6 +7,18 @@ using TMPro;
 using System;
 using DG.Tweening;
 
+public struct Brainteaser
+{
+    public int id;
+    public string question;
+
+    public Brainteaser(int _id, string _question)
+    {
+        id = _id;
+        question = _question;
+    }
+}
+
 public class CaptainController : MonoBehaviour
 {
     public bool IsAppPC { get; set; } = false;
@@ -23,10 +35,10 @@ public class CaptainController : MonoBehaviour
 
     public event Action<string> onProposePassword;
     public event Action<string> onProposeCode;
-    public event Action<int, string> onProposeBrainteaser;
+    public event Action<Brainteaser, string> onProposeBrainteaser;
     public event Action onProposeSendReport;
     public event Action onProposeFinalChoose;
-    public event Action<int> onAutoProposeRandomBrainteaser;
+    public event Action<Brainteaser> onAutoProposeRandomBrainteaser;
     public event Action<WGCC_Data> onCaptainInfoChange;
 
     public enum STEP { PASSWORD, CODE, PRINCIPAL_MISSION, FINAL_CHOOSE };
@@ -34,7 +46,7 @@ public class CaptainController : MonoBehaviour
 
     [Header("General")]
     [SerializeField] private Image youAreCaptainImg;
-    [SerializeField] private TextMeshProUGUI headerTimerTxt, alternativeTimerBTTxt, leftTimerTxt;
+    [SerializeField] private TextMeshProUGUI headerTimerTxt, alternativeTimerBTTxt, leftTimerTxt, sendReportTxt;
     [SerializeField] private Sprite btnExtendSpt, btnRetractSpt;
     [SerializeField] private Button sendReportBtn, retractBtn;
     [SerializeField] private RectTransform carretRetractRct;
@@ -68,6 +80,7 @@ public class CaptainController : MonoBehaviour
     [SerializeField] private GameObject brainTeaserRightPnl;
     [SerializeField] private TextMeshProUGUI brainteaserQuestionTxt, brainteaserTimerTxt;
     [SerializeField] private GBInputButton brainteaserGbib;
+    [SerializeField] private AudioSource brainteaserStressSrc;
     [SerializeField] private Button continueBtn;
 
     [Header("TransversalPnl")]
@@ -81,12 +94,12 @@ public class CaptainController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI finalTimerTxt, chooseC1Txt, chooseC2Txt;
     [SerializeField] private Button company1Btn, company2Btn, noCompanyBtn, finalChooseBtn;
 
-    private List<string> brainteasers = new List<string>();
+    private List<Brainteaser> brainteasers = new List<Brainteaser>();
+    private Brainteaser currentBrainteaser;
 
     private RectTransform panelRct;
 
     private bool isPanelRetracted = false;
-    private int brainteaserIndex = 0;
 
     private bool isCaptain = false;
 
@@ -97,34 +110,6 @@ public class CaptainController : MonoBehaviour
 
     private void Awake()
     {
-        brainteasers = new List<string>();
-        if (GameVersion.IsVersionA)
-        {
-            brainteasers.Add("10 black socks, 8 red socks and 6 white socks are mixed in a drawer. The room is dark. How many socks must be extracted at the MINIMUM in order to be SURE of having two socks of the same color?");
-            brainteasers.Add("Max and Astrid are siblings. Max says he has as many brothers as sisters. Astrid says she has twice as many brothers as she has sisters. How many siblings are there in total?");
-            brainteasers.Add("What gets broken without being held?");
-            brainteasers.Add("A man is looking at a photograph of someone. His friend asks who it is. The man replies, “Brothers and sisters, I have none. But that man’s father is my father’s son.”. Who was in the photograph?");
-            brainteasers.Add("Guess the next three letters in the series GTNTL.");
-            brainteasers.Add("As I was going to St. Ives, I met a man with seven wives. Each wife had seven sacks, Each sack had seven cats, Each cat had seven kits. Kits, cats, sacks and wives. How many were going to St. Ives?");
-            brainteasers.Add("What 5-letter word becomes shorter when you add two letters to it?");
-            brainteasers.Add("A man wanted to encrypt his password but he needed to do it in a way so that he could remember it. He had to use seven characters consisting of letters and numbers only (no symbols like ! or <). In order to remember it, he wrote down “You force heaven to be empty.”. What is his password?");
-            brainteasers.Add("If you take my son’s age and multiply it by one and a half times his age you get 24. How old is my son?");
-            brainteasers.Add("How many times does the number 1 appears between 0 and 100 ?");
-        }
-        else
-        {
-            brainteasers.Add("If 9999 = 4, 8888 = 8, 1816 = 6, 1212 = 0, then 1919 =");
-            brainteasers.Add("Turn Me On My Side And I Am Everything. Cut Me In Half And I Am Nothing. What Am I?");
-            brainteasers.Add("It goes in dry, it comes out wet, the longer it is in, the stronger it gets. What is it?");
-            brainteasers.Add("Which word in the dictionary is spelled incorrectly?");
-            brainteasers.Add("Before Mt. Everest was discovered, what was the highest mountain in the world?");
-            brainteasers.Add("I am the beginning of sorrow and the end of sickness. You cannot express happiness without me yet I am in the midst of crosses. I am always in risk yet never in danger. You may find me in the sun, but I am never out of darkness.");
-            brainteasers.Add("Which day comes three days after the day that comes two days after the day that comes immediately after the day that comes two days after Monday?");
-            brainteasers.Add("I left my campsite and hiked south for 3 miles. Then I turned east and hiked for 3 miles. I then turned north and hiked for 3 miles, at which time I came upon a bear inside my tent eating my food! What color was the bear?");
-            brainteasers.Add("It is 8:40 pm Without looking at your watch, what is the difference in degrees between the small and the big watch hands?");
-            brainteasers.Add("How many times a day do a clock’s hands overlap?");
-        }
-
         panelRct = GetComponent<RectTransform>();
     }
 
@@ -259,6 +244,34 @@ public class CaptainController : MonoBehaviour
 
     public void Initialise()
     {
+        brainteasers = new List<Brainteaser>();
+        if (GameVersion.IsVersionA)
+        {
+            brainteasers.Add(new Brainteaser(0, "10 black socks, 8 red socks and 6 white socks are mixed in a drawer. The room is dark. How many socks must be extracted at the MINIMUM in order to be SURE of having two socks of the same color?"));
+            brainteasers.Add(new Brainteaser(1, "Max and Astrid are siblings. Max says he has as many brothers as sisters. Astrid says she has twice as many brothers as she has sisters. How many siblings are there in total?"));
+            brainteasers.Add(new Brainteaser(2, "What gets broken without being held?"));
+            brainteasers.Add(new Brainteaser(3, "A man is looking at a photograph of someone. His friend asks who it is. The man replies, “Brothers and sisters, I have none. But that man’s father is my father’s son.”. Who was in the photograph?"));
+            brainteasers.Add(new Brainteaser(4, "Guess the next three letters in the series GTNTL."));
+            brainteasers.Add(new Brainteaser(5, "As I was going to St. Ives, I met a man with seven wives. Each wife had seven sacks, Each sack had seven cats, Each cat had seven kits. Kits, cats, sacks and wives. How many were going to St. Ives?"));
+            brainteasers.Add(new Brainteaser(6, "What 5-letter word becomes shorter when you add two letters to it?"));
+            brainteasers.Add(new Brainteaser(7, "A man wanted to encrypt his password but he needed to do it in a way so that he could remember it. He had to use seven characters consisting of letters and numbers only (no symbols like ! or <). In order to remember it, he wrote down “You force heaven to be empty.”. What is his password?"));
+            brainteasers.Add(new Brainteaser(8, "If you take my son’s age and multiply it by one and a half times his age you get 24. How old is my son?"));
+            brainteasers.Add(new Brainteaser(9, "How many times does the number 1 appears between 0 and 100 ?"));
+        }
+        else
+        {
+            brainteasers.Add(new Brainteaser(0, "If 9999 = 4, 8888 = 8, 1816 = 6, 1212 = 0, then 1919 ="));
+            brainteasers.Add(new Brainteaser(1, "Turn Me On My Side And I Am Everything. Cut Me In Half And I Am Nothing. What Am I?"));
+            brainteasers.Add(new Brainteaser(2, "It goes in dry, it comes out wet, the longer it is in, the stronger it gets. What is it?"));
+            brainteasers.Add(new Brainteaser(3, "Which word in the dictionary is spelled incorrectly?"));
+            brainteasers.Add(new Brainteaser(4, "Before Mt. Everest was discovered, what was the highest mountain in the world?"));
+            brainteasers.Add(new Brainteaser(5, "I am the beginning of sorrow and the end of sickness. You cannot express happiness without me yet I am in the midst of crosses. I am always in risk yet never in danger. You may find me in the sun, but I am never out of darkness."));
+            brainteasers.Add(new Brainteaser(6, "Which day comes three days after the day that comes two days after the day that comes immediately after the day that comes two days after Monday?"));
+            brainteasers.Add(new Brainteaser(7, "I left my campsite and hiked south for 3 miles. Then I turned east and hiked for 3 miles. I then turned north and hiked for 3 miles, at which time I came upon a bear inside my tent eating my food! What color was the bear?"));
+            brainteasers.Add(new Brainteaser(8, "It is 8:40 pm Without looking at your watch, what is the difference in degrees between the small and the big watch hands?"));
+            brainteasers.Add(new Brainteaser(9, "How many times a day do a clock’s hands overlap?"));
+        }
+
         youAreCaptainImg.gameObject.SetActive(false);
         finalChooseBtn.gameObject.SetActive(false);
 
@@ -299,6 +312,7 @@ public class CaptainController : MonoBehaviour
 
         sendReportBtn.gameObject.SetActive(isCapt);
         finalChooseBtn.gameObject.SetActive(isCapt);
+        sendReportTxt.gameObject.SetActive(isCapt);
 
         company1Btn.interactable = isCapt;
         company2Btn.interactable = isCapt;
@@ -377,12 +391,16 @@ public class CaptainController : MonoBehaviour
     public void DisplayGoodBrainteaser()
     {
         brainteaserGbib.SetHasGood("<b>Good answer</b>\nYou have won <b>30s</b>.");
+
+        brainteaserStressSrc.Stop();
         continueBtn.gameObject.SetActive(true);
     }
 
     public void DisplayWrongBrainteaser()
     {
         brainteaserGbib.SetHasWrong("<b>Wrong answer</b>\nYou have lost <b>30s</b>.");
+
+        brainteaserStressSrc.Stop();
         continueBtn.gameObject.SetActive(true);
     }
 
@@ -494,25 +512,34 @@ public class CaptainController : MonoBehaviour
     #region BrainTeaser
     private void OnBrainTeaserStart(int index)
     {
-        brainteaserIndex = UnityEngine.Random.Range(0, brainteasers.Count);
+        // Sélectionne le brainteaser
         if (!IsAppPC && isCaptain)
         {
-            onAutoProposeRandomBrainteaser?.Invoke(brainteaserIndex);
+            Brainteaser randomBrainteaser = brainteasers[UnityEngine.Random.Range(0, brainteasers.Count)];
+            currentBrainteaser = randomBrainteaser;
+
+            onAutoProposeRandomBrainteaser?.Invoke(currentBrainteaser);
         }
         if (IsAppPC)
         {
+            Brainteaser randomBrainteaser = brainteasers[UnityEngine.Random.Range(0, brainteasers.Count)];
+            currentBrainteaser = randomBrainteaser;
+
             DisplayBrainteaser();
         }
     }
 
     public void BrainTeaserStartFromCaptain(int index)
     {
-        brainteaserIndex = index;
+        currentBrainteaser = brainteasers.Find(b => b.id == index);
+
         DisplayBrainteaser();
     }
 
     private void OnBrainTeaserUpdate(string timer)
     {
+        if (!brainteaserGbib.interactable) timer = "-";
+
         brainteaserTimerTxt.text = "<b>You have " + timer + " seconds</b> to answer this question.";
         alternativeTimerBTTxt.text = "<b>You have " + timer + " seconds</b> to answer this question.";
     }
@@ -527,13 +554,15 @@ public class CaptainController : MonoBehaviour
         isMissionBrainteaser = true;
         UpdatePanelDisplay();
 
-        brainteaserQuestionTxt.text = brainteasers[brainteaserIndex];
-        brainteasers.RemoveAt(brainteaserIndex);
+        brainteaserQuestionTxt.text = currentBrainteaser.question;
+        brainteasers.Remove(currentBrainteaser);
 
         if (isPanelRetracted)
         {
             OnRetractClick();
         }
+
+        brainteaserStressSrc.Play();
 
         brainteaserGbib.SetHasNeutral();
         brainteaserGbib.text = string.Empty;
@@ -548,7 +577,7 @@ public class CaptainController : MonoBehaviour
     private void OnBrainteaserGbibValidate()
     {
         brainteaserGbib.interactable = false;
-        onProposeBrainteaser?.Invoke(brainteaserIndex, brainteaserGbib.text);
+        onProposeBrainteaser?.Invoke(currentBrainteaser, brainteaserGbib.text);
     }
     private void OnBrainteaserContinueClick()
     {

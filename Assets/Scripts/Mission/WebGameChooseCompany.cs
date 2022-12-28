@@ -17,6 +17,8 @@ public class WebGameChooseCompany : MissionManager
     [SerializeField] private Sprite sierraBackgroundA, sierraBackgroundB;
     [SerializeField] private Image sierraBackgroundImg;
 
+    private string currentSocketIdCaptain = string.Empty;
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -104,6 +106,16 @@ public class WebGameChooseCompany : MissionManager
         Main.SocketIOManager.Instance.On("currentCaptain", (string data) =>
         {
             CurrentCaptainData ccData = JsonUtility.FromJson<CurrentCaptainData>(data);
+
+            // Captain has changed
+            if (ccData.captain.psckId != currentSocketIdCaptain)
+            {
+                if (currentSocketIdCaptain != string.Empty)
+                {
+                    validationController.DisplayCaptainChanged(ccData.captain.pseudo);
+                }
+                currentSocketIdCaptain = ccData.captain.psckId;
+            }
             captainController.SetCaptainMode(ccData.youAreCaptain);
         });
 
@@ -158,21 +170,21 @@ public class WebGameChooseCompany : MissionManager
         Main.SocketIOManager.Instance.Emit("WGCC_CaptainProposeFinalChoose");
     }
 
-    private void OnProposeBrainteaser(int question, string bAnswer)
+    private void OnProposeBrainteaser(Brainteaser brainteaser, string bAnswer)
     {
         WGCC_BrainteaserData ccData = new WGCC_BrainteaserData()
         {
-            questionId = question,
+            questionId = brainteaser.id,
             answer = bAnswer.Trim().ToLower()
         };
         Main.SocketIOManager.Instance.Emit("WGCC_CaptainProposeBrainteaser", JsonUtility.ToJson(ccData), false);
     }
 
-    private void OnAutoProposeRandomBrainteaser(int brainteaserId)
+    private void OnAutoProposeRandomBrainteaser(Brainteaser brainteaser)
     {
         WGCC_BrainteaserData ccData = new WGCC_BrainteaserData()
         {
-            questionId = brainteaserId
+            questionId = brainteaser.id
         };
         Main.SocketIOManager.Instance.Emit("WGCC_CaptainAutoInformBrainteaserId", JsonUtility.ToJson(ccData), false);
     }
@@ -184,6 +196,6 @@ public class WebGameChooseCompany : MissionManager
 
     private void FillVote()
     {
-        validationController.SetTitleProposition("<color=#E20031>The captain</color> wishes to send the report", string.Empty);
+        validationController.SetTitleProposition("<color=#E20031>The captain</color> wishes to send the report.\n\nThis will end the game.", string.Empty);
     }
 }
