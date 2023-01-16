@@ -91,7 +91,7 @@ public class CaptainController : MonoBehaviour
 
     [Header("FinalChoosePnl")]
     [SerializeField] private GameObject finalChoosePnl;
-    [SerializeField] private TextMeshProUGUI finalTimerTxt, chooseC1Txt, chooseC2Txt;
+    [SerializeField] private TextMeshProUGUI finalTimerTxt, chooseC1Txt, chooseC2Txt, yourChooseTxt;
     [SerializeField] private Button company1Btn, company2Btn, noCompanyBtn, finalChooseBtn;
 
     private List<Brainteaser> brainteasers = new List<Brainteaser>();
@@ -185,6 +185,8 @@ public class CaptainController : MonoBehaviour
         Main.TimerManager.OnBrainTeaserEnd -= OnBrainTeaserEnd;
 
         transversalBtn.onClick.RemoveListener(OnTransversalClick);
+
+        brainteaserGbib.onClick.RemoveListener(OnBrainteaserGbibValidate);
         continueBtn.onClick.RemoveListener(OnBrainteaserContinueClick);
 
         passwordGbib.onClick.RemoveListener(OnPasswordClick);
@@ -194,6 +196,7 @@ public class CaptainController : MonoBehaviour
 
         passwordGbib.onValueChanged.RemoveListener(OnPasswordChange);
         codeGbib.onValueChanged.RemoveListener(OnCodeChange);
+        brainteaserGbib.onValueChanged.RemoveListener(OnBrainteaserChange);
 
         extendRectractP1Btn.onClick.RemoveListener(OnExtendRectractP1Click);
         extendRectractP2Btn.onClick.RemoveListener(OnExtendRectractP2Click);
@@ -305,13 +308,14 @@ public class CaptainController : MonoBehaviour
     
     public void SetCaptainMode(bool isCapt)
     {
+        yourChooseTxt.text = isCapt ? "Your team choice" : "Your team choice (the Captain will suggest an answer)";
+
         youAreCaptainImg.gameObject.SetActive(isCapt);
         passwordGbib.SetCaptainMode(isCapt);
         codeGbib.SetCaptainMode(isCapt);
         brainteaserGbib.SetCaptainMode(isCapt);
 
         sendReportBtn.gameObject.SetActive(isCapt);
-        finalChooseBtn.gameObject.SetActive(isCapt);
         sendReportTxt.gameObject.SetActive(isCapt);
 
         company1Btn.interactable = isCapt;
@@ -538,7 +542,7 @@ public class CaptainController : MonoBehaviour
 
     private void OnBrainTeaserUpdate(string timer)
     {
-        if (!brainteaserGbib.interactable) timer = "-";
+        if (!brainteaserStressSrc.isPlaying) timer = "-";
 
         brainteaserTimerTxt.text = "<b>You have " + timer + " seconds</b> to answer this question.";
         alternativeTimerBTTxt.text = "<b>You have " + timer + " seconds</b> to answer this question.";
@@ -588,6 +592,8 @@ public class CaptainController : MonoBehaviour
     #region CompanySelection
     private void OnCompany1Click()
     {
+        finalChooseBtn.gameObject.SetActive(isCaptain);
+
         SelectCompany1();
 
         wgccData.company = 1;
@@ -596,6 +602,8 @@ public class CaptainController : MonoBehaviour
 
     private void OnCompany2Click()
     {
+        finalChooseBtn.gameObject.SetActive(isCaptain);
+
         SelectCompany2();
 
         wgccData.company = 2;
@@ -604,6 +612,8 @@ public class CaptainController : MonoBehaviour
 
     private void OnNoCompanyClick()
     {
+        finalChooseBtn.gameObject.SetActive(isCaptain);
+
         SelectNoCompany();
 
         wgccData.company = 3;
@@ -612,8 +622,6 @@ public class CaptainController : MonoBehaviour
 
     private void SelectCompany1()
     {
-        finalChooseBtn.gameObject.SetActive(true);
-
         DeselectAllCompanyButtons();
 
         company1Btn.GetComponentInChildren<TextMeshProUGUI>().color = ColorPalette.badAnswerColor;
@@ -622,8 +630,6 @@ public class CaptainController : MonoBehaviour
 
     private void SelectCompany2()
     {
-        finalChooseBtn.gameObject.SetActive(true);
-
         DeselectAllCompanyButtons();
 
         company2Btn.GetComponentInChildren<TextMeshProUGUI>().color = ColorPalette.badAnswerColor;
@@ -633,8 +639,6 @@ public class CaptainController : MonoBehaviour
 
     private void SelectNoCompany()
     {
-        finalChooseBtn.gameObject.SetActive(true);
-
         DeselectAllCompanyButtons();
 
         noCompanyBtn.GetComponentInChildren<TextMeshProUGUI>().color = ColorPalette.badAnswerColor;
